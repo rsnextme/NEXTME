@@ -1,0 +1,1393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXTME</title>
+<style>
+:root{--bg:#0b0f1d;--panel:#151a2d;--panel2:#1d2440;--text:#f7f8fc;--muted:#aeb5ca;--line:#303957;--p:#8064ff;--o:#ff914d;--g:#55d6a6}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 85% 0,#261d5c 0,#0e1325 32%,#0b0f1d 60%);color:var(--text)}
+main{max-width:980px;margin:auto;padding:20px}.brand{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.logo{font-size:25px;font-weight:900}.logo b{color:var(--o)}.muted{color:var(--muted)}
+.hero,.box{border:1px solid var(--line);background:rgba(21,26,45,.94);border-radius:24px;padding:26px}.hero{text-align:center;padding:54px 25px;background:linear-gradient(145deg,rgba(128,100,255,.18),rgba(255,145,77,.08))}
+h1{font-size:clamp(40px,7vw,70px);line-height:1;margin:8px 0 15px}h2{font-size:32px;margin:5px 0 10px}.pill{display:inline-block;background:#292759;color:#dcd7ff;border-radius:99px;padding:7px 11px;font-size:12px;font-weight:800}
+button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;cursor:pointer}.primary{background:linear-gradient(90deg,var(--p),#9c75ff);color:white}.secondary{background:var(--panel2);border:1px solid var(--line);color:white}
+.hidden{display:none!important}.progress{height:8px;background:#252b45;border-radius:99px;overflow:hidden;margin:12px 0 22px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--o))}
+.q{font-size:27px;font-weight:800;margin:8px 0}.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.opt{background:var(--panel2);border:1px solid var(--line);padding:15px;border-radius:14px;cursor:pointer}.opt.sel{outline:2px solid var(--p);background:#292759}
+input,textarea{width:100%;padding:15px;border-radius:14px;border:1px solid var(--line);background:#0e1426;color:white;font-size:16px}textarea{min-height:110px}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}.path{border:1px solid var(--line);background:linear-gradient(#171d33,#11172a);border-radius:20px;padding:18px}.path h3{font-size:22px;margin:8px 0}.path p,.path li{color:#dce1ef;line-height:1.48}.path ul{padding-left:20px}.msg{border-left:4px solid var(--o);background:#241d31;padding:20px;border-radius:13px;margin-top:18px;line-height:1.6}
+.action{padding:12px 14px;background:#11172a;border:1px solid var(--line);border-radius:12px;margin:8px 0}.chatlog{height:330px;overflow:auto;padding:10px;background:#0e1426;border:1px solid var(--line);border-radius:16px}.bubble{max-width:82%;padding:11px 13px;border-radius:14px;margin:9px 0;line-height:1.45}.me{margin-left:auto;background:#3a2d75}.ai{background:#202844}.chatrow{display:flex;gap:8px;margin-top:10px}.chatrow input{flex:1}.err{background:#48242c;border:1px solid #79404b;color:#ffd9df;padding:12px;border-radius:12px;margin:12px 0}.small{font-size:13px}
+@media(max-width:600px){main{padding:14px}.hero{padding:42px 18px}.brand .muted{display:none}}
+
+.langgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.langbtn{background:var(--panel2);color:white;border:1px solid var(--line);border-radius:16px;padding:22px;font-size:18px;font-weight:800;cursor:pointer}
+.langbtn:hover{outline:2px solid var(--p);transform:translateY(-1px)}
+@media(max-width:600px){.langgrid{grid-template-columns:1fr}}
+
+.saved-list{display:grid;gap:12px;margin-top:18px}.saved-card{border:1px solid var(--line);background:#11172a;border-radius:16px;padding:16px}.saved-card h3{margin:0 0 7px}.saved-meta{font-size:12px;color:var(--muted);margin-bottom:10px}.saved-actions{display:flex;gap:8px;flex-wrap:wrap}.loading-actions{margin-top:20px}
+
+.choicegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:20px}
+.choicecard{border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:20px;text-align:left;cursor:pointer}
+.choicecard h3{margin:0 0 8px;font-size:22px}.choicecard p{margin:0;color:var(--muted);line-height:1.5}
+.decision-options{display:grid;gap:10px;margin:14px 0}
+.priority-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin:12px 0}
+.priority{padding:12px;border:1px solid var(--line);background:var(--panel2);border-radius:12px;cursor:pointer}
+.priority.sel{outline:2px solid var(--p);background:#292759}
+.scoregrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px}
+.scorecard{border:1px solid var(--line);background:#11172a;border-radius:18px;padding:18px}
+.scorebar{height:7px;background:#252b45;border-radius:99px;overflow:hidden;margin:5px 0 11px}
+.scorebar i{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--o))}
+.metric{display:grid;grid-template-columns:1fr 42px;gap:8px;align-items:center;margin:7px 0}
+.bestbox{border-left:4px solid var(--o);background:#241d31;border-radius:14px;padding:19px;margin:16px 0}
+.verifybox{display:grid;gap:8px}
+
+
+.modal{position:fixed;inset:0;background:rgba(4,8,24,.78);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.modal.hidden{display:none!important}
+.modal-card{width:min(440px,100%);background:#151a2d;border:1px solid #303957;border-radius:22px;padding:26px;position:relative}
+.modal-card input{width:100%;margin:7px 0 14px}
+.modal-x{position:absolute;right:14px;top:10px;background:transparent;color:#fff;font-size:26px;padding:6px}
+.linkbtn{background:transparent;color:#a98bff;padding:0}
+
+
+.account-login-btn{
+  min-width:150px;
+  padding:14px 22px;
+  font-size:16px;
+  border-radius:14px;
+  font-weight:800;
+}
+.auth-gate{
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(107,76,255,.22), transparent 34%),
+    rgba(7,12,27,.96);
+}
+.auth-gate.hidden{display:none!important}
+.auth-gate-card{
+  width:min(560px,100%);
+  background:#151a2d;
+  border:1px solid #334064;
+  border-radius:24px;
+  padding:32px;
+  text-align:center;
+  box-shadow:0 28px 90px rgba(0,0,0,.38);
+}
+.auth-gate-card h1{margin:14px 0 10px}
+.auth-gate-card p{line-height:1.6}
+.auth-gate-card .primary{
+  width:100%;
+  margin-top:18px;
+  padding:16px 20px;
+  font-size:17px;
+}
+
+
+.password-wrap{
+  position:relative;
+}
+.password-wrap input{
+  width:100%;
+  box-sizing:border-box;
+  padding-right:48px;
+}
+.eye-btn{
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  background:transparent;
+  border:0;
+  color:#fff;
+  font-size:20px;
+  padding:6px 8px;
+  cursor:pointer;
+  opacity:.85;
+}
+.eye-btn:hover{opacity:1}
+
+</style>
+</head>
+<body>
+
+<div id="authGate" class="auth-gate">
+  <div class="auth-gate-card">
+    <div class="logo" style="font-size:34px">NEXT<b>ME</b></div>
+    <span class="pill" style="display:inline-block;margin-top:16px">YOUR FUTURE. YOUR ACCOUNT.</span>
+    <h1>Continue to NEXTME</h1>
+    <p class="muted">
+      Apne future simulations, decisions aur saved history ko secure rakhne ke liye
+      pehle login ya account create kijiye.
+    </p>
+    <button class="primary" onclick="openAuth()">Login / Create Account</button>
+  </div>
+</div>
+<main>
+<div class="brand"><div class="logo">NEXT<b>ME</b></div><div style="display:flex;align-items:center;gap:10px"><div class="muted">Meet the person you are becoming.</div><button id="accountBtn" class="primary account-login-btn" onclick="openAuth()">Login / Sign Up</button></div></div>
+
+<section id="lang" class="hero">
+<span class="pill">CHOOSE LANGUAGE</span>
+<h2>Choose your language</h2>
+<p class="muted">Select the language you are most comfortable with.</p>
+<div class="langgrid"><button type="button" class="langbtn" onclick="setLang('en')">English</button>
+<button type="button" class="langbtn" onclick="setLang('hi')">हिन्दी</button>
+<button type="button" class="langbtn" onclick="setLang('hinglish')">Hinglish</button>
+<button type="button" class="langbtn" onclick="setLang('bn')">বাংলা</button>
+<button type="button" class="langbtn" onclick="setLang('mr')">मराठी</button>
+<button type="button" class="langbtn" onclick="setLang('gu')">ગુજરાતી</button>
+<button type="button" class="langbtn" onclick="setLang('pa')">ਪੰਜਾਬੀ</button>
+<button type="button" class="langbtn" onclick="setLang('ta')">தமிழ்</button>
+<button type="button" class="langbtn" onclick="setLang('te')">తెలుగు</button>
+<button type="button" class="langbtn" onclick="setLang('kn')">ಕನ್ನಡ</button>
+<button type="button" class="langbtn" onclick="setLang('ml')">മലയാളം</button>
+<button type="button" class="langbtn" onclick="setLang('or')">ଓଡ଼ିଆ</button>
+<button type="button" class="langbtn" onclick="setLang('as')">অসমীয়া</button>
+<button type="button" class="langbtn" onclick="setLang('ur')">اردو</button></div>
+</section>
+<section id="welcome" class="hero hidden">
+<span class="pill">NEXTME</span>
+<h1>Meet your possible future.</h1>
+<p class="muted">See your futures. Test your decisions. Choose better.</p>
+<div class="choicegrid">
+  <div class="choicecard" onclick="start()">
+    <h3 id="futureChoiceTitle">Explore My Future</h3>
+    <p id="futureChoiceSub">Build three realistic 5-year scenarios and a 30-day action plan.</p>
+  </div>
+  <div class="choicecard" onclick="openDecision()" onclick="openDecision()">
+    <h3 id="decisionChoiceTitle">Test a Decision</h3>
+    <p id="decisionChoiceSub">Compare Option A, B or C before making a major life decision.</p>
+  </div>
+  <div class="choicecard" onclick="openSaved()">
+    <h3 id="savedChoiceTitle">My Saved Futures</h3>
+    <p id="savedChoiceSub">Reopen your previous simulations and reports.</p>
+  </div>
+</div>
+</section>
+
+<section id="quiz" class="box hidden">
+<div><b id="step"></b></div><div class="progress"><i id="bar"></i></div>
+<div id="qbox"></div>
+<div class="nav"><button id="backBtn" class="secondary" onclick="back()">Back</button><button id="next" class="primary" onclick="next()">Next</button></div>
+</section>
+
+<section id="loading" class="hero hidden"><span class="pill">NEXTME AI</span><h2 id="loadingTitle">Building your possible futures…</h2><p id="loadingSub" class="muted">This can take a moment.</p><div class="loading-actions"><button id="cancelGenBtn" class="secondary" onclick="cancelGeneration()">Cancel</button></div></section>
+
+<section id="result" class="hidden">
+<div class="box">
+<span class="pill" id="resultLabel">YOUR 5-YEAR SCENARIOS</span><h2 id="resultTitle">Your NEXTME</h2>
+<div id="error"></div><div id="retryArea"></div><div id="paths" class="grid"></div>
+<div id="futureMsg" class="msg"></div>
+<h3 id="whyTitle">Why am I seeing this future?</h3><div id="why"></div>
+<h3 id="daysTitle">Your next 30 days</h3><div id="actions"></div>
+<div class="nav"><button id="restartBtn" class="secondary" onclick="restart()">Start Again</button><button id="chatBtn" class="primary" onclick="openChat()">Talk to Future Me</button></div>
+</div>
+</section>
+
+<section id="chat" class="box hidden"><span id="chatPill" class="pill">FUTURE SELF CHAT</span><h2 id="chatTitle">Talk to Future You</h2><p id="chatSub" class="muted">Choose a scenario and ask what you should do next.</p><div id="scenarioBtns" class="nav"></div><div id="chatlog" class="chatlog"></div><div class="chatrow"><input id="chatInput" placeholder="Ask your Future Self…"><button id="sendBtn" class="primary" onclick="sendChat()">Send</button></div><div class="nav"><button id="backResultBtn" class="secondary" onclick="closeChat()">Back to Results</button></div></section>
+
+<section id="decision" class="box hidden">
+<span class="pill">DECISION SIMULATOR</span>
+<h2 id="decisionFormTitle">Test a Life Decision</h2>
+<p class="muted" id="decisionFormSub">Describe the decision and the options you are considering.</p>
+
+<label><b id="decisionQLabel">What decision are you trying to make?</b></label>
+<textarea id="decisionText" placeholder="Example: Should I take a higher-paying job in Delhi or stay in Patna and build my business?"></textarea>
+
+<h3 id="optionsLabel">Your options</h3>
+<div class="decision-options">
+  <input id="optA" placeholder="Option A">
+  <input id="optB" placeholder="Option B">
+  <input id="optC" placeholder="Option C (optional)">
+</div>
+
+<h3 id="priorityLabel">What matters most?</h3>
+<div id="priorityGrid" class="priority-grid">
+  <div class="priority" onclick="togglePriority(this,'Money')">Money</div>
+  <div class="priority" onclick="togglePriority(this,'Stability')">Stability</div>
+  <div class="priority" onclick="togglePriority(this,'Growth')">Growth</div>
+  <div class="priority" onclick="togglePriority(this,'Family/Lifestyle')">Family / Lifestyle</div>
+  <div class="priority" onclick="togglePriority(this,'Time')">Time</div>
+  <div class="priority" onclick="togglePriority(this,'Purpose')">Purpose</div>
+</div>
+
+<h3 id="horizonLabel">Time horizon</h3>
+<select id="decisionHorizon">
+  <option>1 year</option>
+  <option>3 years</option>
+  <option selected>5 years</option>
+</select>
+
+<div class="nav">
+  <button class="secondary" id="decisionBackBtn" onclick="closeDecision()">Back</button>
+  <button class="primary" id="simulateBtn" onclick="simulateDecision()">Simulate Decision</button>
+</div>
+</section>
+
+<section id="decisionLoading" class="hero hidden">
+<span class="pill">NEXTME DECISION AI</span>
+<h2 id="decisionLoadingTitle">Simulating your options…</h2>
+<p class="muted" id="decisionLoadingSub">Comparing trade-offs, risks and possible paths.</p>
+</section>
+
+<section id="decisionResult" class="box hidden">
+<span class="pill">DECISION SIMULATION</span>
+<h2 id="decisionResultTitle">Your Decision Map</h2>
+<div id="decisionError"></div>
+<div id="decisionRetry"></div>
+<div id="decisionBest" class="bestbox"></div>
+<div id="decisionScores" class="scoregrid"></div>
+<h3 id="verifyTitle">Before deciding, verify these</h3>
+<div id="decisionVerify" class="verifybox"></div>
+<h3 id="next7Title">Your next 7 days</h3>
+<div id="decisionNext7"></div>
+<div class="nav">
+  <button class="secondary" onclick="closeDecisionResult()">Back</button>
+  <button class="primary" onclick="copyDecisionSummary()">Copy Decision Summary</button>
+</div>
+</section>
+
+<section id="saved" class="box hidden"><span id="savedPill" class="pill">SAVED FUTURES</span><h2 id="savedTitle">My Saved Futures</h2><p id="savedSub" class="muted">Your reports are saved in this browser on this device.</p><div id="savedList" class="saved-list"></div><h3 id="savedDecisionHeading" style="margin-top:28px">Saved Decisions</h3><div id="savedDecisionList" class="saved-list"></div><div class="nav"><button id="savedBackBtn" class="secondary" onclick="closeSaved()">Back</button></div></section>
+</main>
+
+<script>
+const qs=[
+['age',"What's your age?",'number',[]],
+['current_status',"Which best describes your current situation?",'options',['Student','Working Professional','Business Owner','Freelancer','Preparing for Job/Exam','Homemaker','Retired','Other']],
+['top_priority',"What matters most to you right now?",'options',['Career','Money','Business','Health','Relationships','Freedom','Learning','Purpose']],
+['five_year_goal',"Where do you want to be 5 years from now?",'text',[]],
+['biggest_challenge',"What is your biggest challenge today?",'options',['Lack of money','Lack of direction','Lack of confidence','Lack of time','Career uncertainty','Family responsibility','Health/lifestyle','Fear of failure','Other']],
+['monthly_income_range',"What is your approximate monthly income?",'options',['No income','Below ₹25k','₹25k–50k','₹50k–1L','₹1L–2L','₹2L+']],
+['saving_habit',"How would you describe your saving habit?",'options',["I don't save",'Sometimes','5–10%','10–20%','More than 20%']],
+['daily_growth_time',"How much focused time can you give yourself every day?",'options',['15 min','30 min','1 hour','2 hours','3+ hours']],
+['future_fear',"What worries you most about your future?",'text',[]],
+['bold_dream',"If failure was impossible, what would you do?",'text',[]]
+];
+let idx=0,profile={},result=null,selected='path_b',history=[];
+
+const LANG_META={"en": {"label": "English", "name": "English"}, "hi": {"label": "हिन्दी", "name": "Hindi"}, "hinglish": {"label": "Hinglish", "name": "Hinglish"}, "bn": {"label": "বাংলা", "name": "Bengali"}, "mr": {"label": "मराठी", "name": "Marathi"}, "gu": {"label": "ગુજરાતી", "name": "Gujarati"}, "pa": {"label": "ਪੰਜਾਬੀ", "name": "Punjabi"}, "ta": {"label": "தமிழ்", "name": "Tamil"}, "te": {"label": "తెలుగు", "name": "Telugu"}, "kn": {"label": "ಕನ್ನಡ", "name": "Kannada"}, "ml": {"label": "മലയാളം", "name": "Malayalam"}, "or": {"label": "ଓଡ଼ିଆ", "name": "Odia"}, "as": {"label": "অসমীয়া", "name": "Assamese"}, "ur": {"label": "اردو", "name": "Urdu"}};
+const T={"en": {"name": "English", "hero": "Meet your possible future.", "sub": "Build three realistic 5-year scenarios and talk with your possible Future Self.", "start": "Start My Future", "back": "Back", "next": "Next", "generate": "Generate My Future", "result": "Your NEXTME", "why": "Why am I seeing this future?", "days": "Your next 30 days", "chat": "Talk to Future Me", "restart": "Start Again", "opp": "Opportunity", "risk": "Risk", "qprefix": "Question", "hint": "Give the answer that feels closest to your real situation."}, "hi": {"name": "Hindi", "hero": "अपने संभावित भविष्य से मिलिए।", "sub": "अगले 5 वर्षों के तीन संभावित रास्ते देखें और अपने Future Self से बात करें।", "start": "मेरा भविष्य शुरू करें", "back": "पीछे", "next": "आगे", "generate": "मेरा भविष्य बनाएं", "result": "आपका NEXTME", "why": "मुझे यह भविष्य क्यों दिख रहा है?", "days": "आपके अगले 30 दिन", "chat": "Future Me से बात करें", "restart": "फिर से शुरू करें", "opp": "अवसर", "risk": "जोखिम", "qprefix": "प्रश्न", "hint": "वही उत्तर दें जो आपकी वास्तविक स्थिति के सबसे करीब हो।"}, "hinglish": {"name": "Hinglish", "hero": "Apne possible future se miliye.", "sub": "Agale 5 saal ke 3 possible paths dekhiye aur apne Future Self se baat kijiye.", "start": "Mera Future Start Karein", "back": "Back", "next": "Next", "generate": "Mera Future Generate Karein", "result": "Aapka NEXTME", "why": "Mujhe ye future kyon dikh raha hai?", "days": "Aapke agale 30 din", "chat": "Future Me Se Baat Karein", "restart": "Phir Se Start Karein", "opp": "Opportunity", "risk": "Risk", "qprefix": "Question", "hint": "Wahi answer dein jo aapki real situation ke sabse close ho."}, "bn": {"name": "Bengali", "hero": "আপনার সম্ভাব্য ভবিষ্যতের সাথে পরিচিত হন।", "sub": "আগামী ৫ বছরের তিনটি সম্ভাব্য পথ দেখুন এবং আপনার Future Self-এর সাথে কথা বলুন।", "start": "আমার ভবিষ্যৎ শুরু করুন", "back": "পিছনে", "next": "পরবর্তী", "generate": "আমার ভবিষ্যৎ তৈরি করুন", "result": "আপনার NEXTME", "why": "আমি এই ভবিষ্যৎ কেন দেখছি?", "days": "আপনার পরবর্তী ৩০ দিন", "chat": "Future Me-এর সাথে কথা বলুন", "restart": "আবার শুরু করুন", "opp": "সুযোগ", "risk": "ঝুঁকি", "qprefix": "প্রশ্ন", "hint": "আপনার বাস্তব অবস্থার সবচেয়ে কাছের উত্তরটি দিন।"}, "mr": {"name": "Marathi", "hero": "तुमच्या संभाव्य भविष्याला भेटा.", "sub": "पुढील ५ वर्षांचे तीन संभाव्य मार्ग पहा आणि तुमच्या Future Self शी बोला.", "start": "माझे भविष्य सुरू करा", "back": "मागे", "next": "पुढे", "generate": "माझे भविष्य तयार करा", "result": "तुमचे NEXTME", "why": "मला हे भविष्य का दिसत आहे?", "days": "तुमचे पुढील ३० दिवस", "chat": "Future Me शी बोला", "restart": "पुन्हा सुरू करा", "opp": "संधी", "risk": "धोका", "qprefix": "प्रश्न", "hint": "तुमच्या वास्तविक परिस्थितीशी सर्वाधिक जुळणारे उत्तर द्या."}, "gu": {"name": "Gujarati", "hero": "તમારા સંભવિત ભવિષ્યને મળો.", "sub": "આગામી ૫ વર્ષના ત્રણ સંભવિત માર્ગ જુઓ અને તમારા Future Self સાથે વાત કરો.", "start": "મારું ભવિષ્ય શરૂ કરો", "back": "પાછળ", "next": "આગળ", "generate": "મારું ભવિષ્ય બનાવો", "result": "તમારું NEXTME", "why": "મને આ ભવિષ્ય કેમ દેખાઈ રહ્યું છે?", "days": "તમારા આગામી ૩૦ દિવસ", "chat": "Future Me સાથે વાત કરો", "restart": "ફરી શરૂ કરો", "opp": "તક", "risk": "જોખમ", "qprefix": "પ્રશ્ન", "hint": "તમારી વાસ્તવિક સ્થિતિને સૌથી નજીકનું ઉત્તર આપો."}, "pa": {"name": "Punjabi", "hero": "ਆਪਣੇ ਸੰਭਾਵੀ ਭਵਿੱਖ ਨਾਲ ਮਿਲੋ।", "sub": "ਅਗਲੇ 5 ਸਾਲਾਂ ਦੇ ਤਿੰਨ ਸੰਭਾਵੀ ਰਸਤੇ ਵੇਖੋ ਅਤੇ ਆਪਣੇ Future Self ਨਾਲ ਗੱਲ ਕਰੋ।", "start": "ਮੇਰਾ ਭਵਿੱਖ ਸ਼ੁਰੂ ਕਰੋ", "back": "ਪਿੱਛੇ", "next": "ਅੱਗੇ", "generate": "ਮੇਰਾ ਭਵਿੱਖ ਬਣਾਓ", "result": "ਤੁਹਾਡਾ NEXTME", "why": "ਮੈਨੂੰ ਇਹ ਭਵਿੱਖ ਕਿਉਂ ਦਿਖ ਰਿਹਾ ਹੈ?", "days": "ਤੁਹਾਡੇ ਅਗਲੇ 30 ਦਿਨ", "chat": "Future Me ਨਾਲ ਗੱਲ ਕਰੋ", "restart": "ਮੁੜ ਸ਼ੁਰੂ ਕਰੋ", "opp": "ਮੌਕਾ", "risk": "ਖਤਰਾ", "qprefix": "ਸਵਾਲ", "hint": "ਉਹ ਜਵਾਬ ਦਿਓ ਜੋ ਤੁਹਾਡੀ ਅਸਲ ਸਥਿਤੀ ਦੇ ਸਭ ਤੋਂ ਨੇੜੇ ਹੋਵੇ।"}, "ta": {"name": "Tamil", "hero": "உங்கள் சாத்தியமான எதிர்காலத்தை சந்தியுங்கள்.", "sub": "அடுத்த 5 ஆண்டுகளுக்கான மூன்று சாத்தியமான பாதைகளைப் பாருங்கள் மற்றும் உங்கள் Future Self உடன் பேசுங்கள்.", "start": "என் எதிர்காலத்தை தொடங்கு", "back": "பின்செல்", "next": "அடுத்து", "generate": "என் எதிர்காலத்தை உருவாக்கு", "result": "உங்கள் NEXTME", "why": "இந்த எதிர்காலம் எனக்கு ஏன் காட்டப்படுகிறது?", "days": "உங்கள் அடுத்த 30 நாட்கள்", "chat": "Future Me உடன் பேசுங்கள்", "restart": "மீண்டும் தொடங்கு", "opp": "வாய்ப்பு", "risk": "ஆபத்து", "qprefix": "கேள்வி", "hint": "உங்கள் உண்மையான நிலைக்கு மிக அருகிலான பதிலைத் தேர்ந்தெடுக்கவும்."}, "te": {"name": "Telugu", "hero": "మీ సాధ్యమైన భవిష్యత్తును కలుసుకోండి.", "sub": "తదుపరి 5 సంవత్సరాల మూడు సాధ్యమైన మార్గాలను చూడండి మరియు మీ Future Self‌తో మాట్లాడండి.", "start": "నా భవిష్యత్తును ప్రారంభించండి", "back": "వెనుకకు", "next": "తదుపరి", "generate": "నా భవిష్యత్తును రూపొందించండి", "result": "మీ NEXTME", "why": "నాకు ఈ భవిష్యత్తు ఎందుకు చూపబడుతోంది?", "days": "మీ తదుపరి 30 రోజులు", "chat": "Future Me‌తో మాట్లాడండి", "restart": "మళ్లీ ప్రారంభించండి", "opp": "అవకాశం", "risk": "ప్రమాదం", "qprefix": "ప్రశ్న", "hint": "మీ నిజ పరిస్థితికి అత్యంత దగ్గరగా ఉన్న సమాధానం ఇవ్వండి."}, "kn": {"name": "Kannada", "hero": "ನಿಮ್ಮ ಸಾಧ್ಯ ಭವಿಷ್ಯವನ್ನು ಭೇಟಿಯಾಗಿ.", "sub": "ಮುಂದಿನ 5 ವರ್ಷಗಳ ಮೂರು ಸಾಧ್ಯ ಮಾರ್ಗಗಳನ್ನು ನೋಡಿ ಮತ್ತು ನಿಮ್ಮ Future Self ಜೊತೆ ಮಾತನಾಡಿ.", "start": "ನನ್ನ ಭವಿಷ್ಯ ಆರಂಭಿಸಿ", "back": "ಹಿಂದೆ", "next": "ಮುಂದೆ", "generate": "ನನ್ನ ಭವಿಷ್ಯ ರಚಿಸಿ", "result": "ನಿಮ್ಮ NEXTME", "why": "ನನಗೆ ಈ ಭವಿಷ್ಯ ಏಕೆ ಕಾಣುತ್ತಿದೆ?", "days": "ನಿಮ್ಮ ಮುಂದಿನ 30 ದಿನಗಳು", "chat": "Future Me ಜೊತೆ ಮಾತನಾಡಿ", "restart": "ಮತ್ತೆ ಆರಂಭಿಸಿ", "opp": "ಅವಕಾಶ", "risk": "ಅಪಾಯ", "qprefix": "ಪ್ರಶ್ನೆ", "hint": "ನಿಮ್ಮ ನೈಜ ಸ್ಥಿತಿಗೆ ಹೆಚ್ಚು ಹೊಂದುವ ಉತ್ತರ ನೀಡಿ."}, "ml": {"name": "Malayalam", "hero": "നിങ്ങളുടെ സാധ്യതയുള്ള ഭാവിയെ കണ്ടുമുട്ടൂ.", "sub": "അടുത്ത 5 വർഷത്തെ മൂന്ന് സാധ്യതയുള്ള വഴികൾ കാണുകയും നിങ്ങളുടെ Future Self-നോട് സംസാരിക്കുകയും ചെയ്യൂ.", "start": "എന്റെ ഭാവി ആരംഭിക്കൂ", "back": "പിന്നിലേക്ക്", "next": "അടുത്തത്", "generate": "എന്റെ ഭാവി സൃഷ്ടിക്കൂ", "result": "നിങ്ങളുടെ NEXTME", "why": "എനിക്ക് ഈ ഭാവി എന്തുകൊണ്ട് കാണുന്നു?", "days": "നിങ്ങളുടെ അടുത്ത 30 ദിവസം", "chat": "Future Me-നോട് സംസാരിക്കൂ", "restart": "വീണ്ടും ആരംഭിക്കൂ", "opp": "അവസരം", "risk": "അപകടസാധ്യത", "qprefix": "ചോദ്യം", "hint": "നിങ്ങളുടെ യാഥാർത്ഥ്യ സാഹചര്യത്തോട് ഏറ്റവും അടുത്ത ഉത്തരമിടൂ."}, "or": {"name": "Odia", "hero": "ଆପଣଙ୍କ ସମ୍ଭାବ୍ୟ ଭବିଷ୍ୟତ ସହିତ ମିଳନ୍ତୁ।", "sub": "ଆଗାମୀ ୫ ବର୍ଷର ତିନୋଟି ସମ୍ଭାବ୍ୟ ପଥ ଦେଖନ୍ତୁ ଏବଂ ଆପଣଙ୍କ Future Self ସହ କଥାହୁଅନ୍ତୁ।", "start": "ମୋର ଭବିଷ୍ୟତ ଆରମ୍ଭ କରନ୍ତୁ", "back": "ପଛକୁ", "next": "ଆଗକୁ", "generate": "ମୋର ଭବିଷ୍ୟତ ତିଆରି କରନ୍ତୁ", "result": "ଆପଣଙ୍କ NEXTME", "why": "ମୋତେ ଏହି ଭବିଷ୍ୟତ କାହିଁକି ଦେଖାଯାଉଛି?", "days": "ଆପଣଙ୍କ ଆଗାମୀ ୩୦ ଦିନ", "chat": "Future Me ସହ କଥାହୁଅନ୍ତୁ", "restart": "ପୁନର୍ବାର ଆରମ୍ଭ କରନ୍ତୁ", "opp": "ସୁଯୋଗ", "risk": "ଜୋଖିମ", "qprefix": "ପ୍ରଶ୍ନ", "hint": "ଆପଣଙ୍କ ବାସ୍ତବ ପରିସ୍ଥିତି ସହ ସବୁଠାରୁ ନିକଟ ଉତ୍ତର ଦିଅନ୍ତୁ।"}, "as": {"name": "Assamese", "hero": "আপোনাৰ সম্ভাৱ্য ভৱিষ্যতক লগ পাওক।", "sub": "আগন্তুক ৫ বছৰৰ তিনিটা সম্ভাৱ্য পথ চাওক আৰু আপোনাৰ Future Self-ৰ সৈতে কথা পাতক।", "start": "মোৰ ভৱিষ্যত আৰম্ভ কৰক", "back": "পিছলৈ", "next": "আগলৈ", "generate": "মোৰ ভৱিষ্যত তৈয়াৰ কৰক", "result": "আপোনাৰ NEXTME", "why": "মোক এই ভৱিষ্যত কিয় দেখুওৱা হৈছে?", "days": "আপোনাৰ আগন্তুক ৩০ দিন", "chat": "Future Me-ৰ সৈতে কথা পাতক", "restart": "পুনৰ আৰম্ভ কৰক", "opp": "সুযোগ", "risk": "ঝুঁকি", "qprefix": "প্ৰশ্ন", "hint": "আপোনাৰ বাস্তৱ অৱস্থাৰ সৈতে আটাইতকৈ ওচৰৰ উত্তৰ দিয়ক।"}, "ur": {"name": "Urdu", "hero": "اپنے ممکنہ مستقبل سے ملیں۔", "sub": "اگلے 5 سال کے تین ممکنہ راستے دیکھیں اور اپنے Future Self سے بات کریں۔", "start": "میرا مستقبل شروع کریں", "back": "پیچھے", "next": "اگلا", "generate": "میرا مستقبل بنائیں", "result": "آپ کا NEXTME", "why": "مجھے یہ مستقبل کیوں دکھایا جا رہا ہے؟", "days": "آپ کے اگلے 30 دن", "chat": "Future Me سے بات کریں", "restart": "دوبارہ شروع کریں", "opp": "موقع", "risk": "خطرہ", "qprefix": "سوال", "hint": "وہ جواب دیں جو آپ کی اصل صورتحال کے سب سے قریب ہو۔"}};
+const Q={"en": ["What's your age?", "Which best describes your current situation?", "What matters most to you right now?", "Where do you want to be 5 years from now?", "What is your biggest challenge today?", "What is your approximate monthly income?", "How would you describe your saving habit?", "How much focused time can you give yourself every day?", "What worries you most about your future?", "If failure was impossible, what would you do?"], "hi": ["आपकी उम्र क्या है?", "आपकी वर्तमान स्थिति क्या है?", "अभी आपके लिए सबसे महत्वपूर्ण क्या है?", "आप 5 साल बाद खुद को कहाँ देखना चाहते हैं?", "आज आपकी सबसे बड़ी चुनौती क्या है?", "आपकी लगभग मासिक आय कितनी है?", "आपकी बचत की आदत कैसी है?", "आप रोज़ अपने विकास के लिए कितना focused समय दे सकते हैं?", "भविष्य को लेकर आपकी सबसे बड़ी चिंता क्या है?", "अगर असफलता संभव ही न हो, तो आप क्या करना चाहेंगे?"], "hinglish": ["Aapki age kya hai?", "Aapki current situation kya hai?", "Abhi aapke liye sabse important kya hai?", "5 saal baad aap khud ko kahan dekhna chahte hain?", "Aaj aapki sabse badi challenge kya hai?", "Aapki approx monthly income kitni hai?", "Aapki saving habit kaisi hai?", "Aap daily apne growth ke liye kitna focused time de sakte hain?", "Future ko lekar aapko sabse zyada kis baat ki chinta hai?", "Agar failure possible hi na ho, to aap kya karna chahenge?"], "bn": ["আপনার বয়স কত?", "আপনার বর্তমান অবস্থাকে কোনটি সবচেয়ে ভালোভাবে বোঝায়?", "এই মুহূর্তে আপনার কাছে সবচেয়ে গুরুত্বপূর্ণ কী?", "৫ বছর পর আপনি নিজেকে কোথায় দেখতে চান?", "আজ আপনার সবচেয়ে বড় চ্যালেঞ্জ কী?", "আপনার আনুমানিক মাসিক আয় কত?", "আপনার সঞ্চয়ের অভ্যাস কেমন?", "প্রতিদিন নিজের উন্নতির জন্য কতটা মনোযোগী সময় দিতে পারেন?", "ভবিষ্যৎ নিয়ে আপনার সবচেয়ে বড় দুশ্চিন্তা কী?", "যদি ব্যর্থ হওয়া অসম্ভব হতো, আপনি কী করতেন?"], "mr": ["तुमचे वय किती आहे?", "तुमची सध्याची परिस्थिती कोणती आहे?", "आत्ता तुमच्यासाठी सर्वात महत्त्वाचे काय आहे?", "५ वर्षांनंतर तुम्ही स्वतःला कुठे पाहू इच्छिता?", "आज तुमचे सर्वात मोठे आव्हान काय आहे?", "तुमचे अंदाजे मासिक उत्पन्न किती आहे?", "तुमची बचतीची सवय कशी आहे?", "दररोज स्वतःच्या प्रगतीसाठी किती focused वेळ देऊ शकता?", "भविष्याबद्दल तुमची सर्वात मोठी चिंता काय आहे?", "अपयश अशक्य असते तर तुम्ही काय केले असते?"], "gu": ["તમારી ઉંમર કેટલી છે?", "તમારી હાલની સ્થિતિ કઈ છે?", "હમણાં તમારા માટે સૌથી મહત્વપૂર્ણ શું છે?", "૫ વર્ષ પછી તમે જાતને ક્યાં જોવું ઇચ્છો છો?", "આજે તમારી સૌથી મોટી મુશ્કેલી શું છે?", "તમારી અંદાજિત માસિક આવક કેટલી છે?", "તમારી બચતની આદત કેવી છે?", "તમે દરરોજ પોતાના વિકાસ માટે કેટલો focused સમય આપી શકો છો?", "ભવિષ્ય વિશે તમારી સૌથી મોટી ચિંતા શું છે?", "જો નિષ્ફળતા શક્ય જ ન હોત તો તમે શું કરશો?"], "pa": ["ਤੁਹਾਡੀ ਉਮਰ ਕਿੰਨੀ ਹੈ?", "ਤੁਹਾਡੀ ਮੌਜੂਦਾ ਸਥਿਤੀ ਕੀ ਹੈ?", "ਇਸ ਵੇਲੇ ਤੁਹਾਡੇ ਲਈ ਸਭ ਤੋਂ ਮਹੱਤਵਪੂਰਨ ਕੀ ਹੈ?", "5 ਸਾਲ ਬਾਅਦ ਤੁਸੀਂ ਆਪਣੇ ਆਪ ਨੂੰ ਕਿੱਥੇ ਦੇਖਣਾ ਚਾਹੁੰਦੇ ਹੋ?", "ਅੱਜ ਤੁਹਾਡੀ ਸਭ ਤੋਂ ਵੱਡੀ ਚੁਣੌਤੀ ਕੀ ਹੈ?", "ਤੁਹਾਡੀ ਲਗਭਗ ਮਹੀਨਾਵਾਰ ਆਮਦਨ ਕਿੰਨੀ ਹੈ?", "ਤੁਹਾਡੀ ਬਚਤ ਦੀ ਆਦਤ ਕਿਹੋ ਜਿਹੀ ਹੈ?", "ਤੁਸੀਂ ਹਰ ਰੋਜ਼ ਆਪਣੇ ਵਿਕਾਸ ਲਈ ਕਿੰਨਾ focused ਸਮਾਂ ਦੇ ਸਕਦੇ ਹੋ?", "ਭਵਿੱਖ ਬਾਰੇ ਤੁਹਾਡੀ ਸਭ ਤੋਂ ਵੱਡੀ ਚਿੰਤਾ ਕੀ ਹੈ?", "ਜੇ ਅਸਫਲਤਾ ਅਸੰਭਵ ਹੁੰਦੀ, ਤਾਂ ਤੁਸੀਂ ਕੀ ਕਰਦੇ?"], "ta": ["உங்கள் வயது என்ன?", "உங்கள் தற்போதைய நிலையை எது சிறப்பாக விளக்குகிறது?", "இப்போது உங்களுக்கு மிகவும் முக்கியமானது என்ன?", "5 ஆண்டுகளுக்குப் பிறகு நீங்கள் எங்கே இருக்க விரும்புகிறீர்கள்?", "இன்றைய உங்கள் மிகப்பெரிய சவால் என்ன?", "உங்கள் சுமார் மாத வருமானம் எவ்வளவு?", "உங்கள் சேமிப்பு பழக்கம் எப்படி உள்ளது?", "தினமும் உங்கள் வளர்ச்சிக்காக எவ்வளவு focused நேரம் வழங்க முடியும்?", "உங்கள் எதிர்காலத்தைப் பற்றி அதிகம் கவலைப்படுவது என்ன?", "தோல்வி சாத்தியமற்றது என்றால் நீங்கள் என்ன செய்வீர்கள்?"], "te": ["మీ వయస్సు ఎంత?", "మీ ప్రస్తుత పరిస్థితిని ఏది బాగా వివరిస్తుంది?", "ఇప్పుడే మీకు అత్యంత ముఖ్యమైనది ఏమిటి?", "5 సంవత్సరాల తరువాత మీరు ఎక్కడ ఉండాలనుకుంటున్నారు?", "ఈరోజు మీ అతిపెద్ద సవాలు ఏమిటి?", "మీ సుమారు నెలవారీ ఆదాయం ఎంత?", "మీ పొదుపు అలవాటు ఎలా ఉంది?", "ప్రతిరోజూ మీ అభివృద్ధికి ఎంత focused సమయం ఇవ్వగలరు?", "మీ భవిష్యత్తు గురించి మీకు ఎక్కువగా ఆందోళన కలిగించేది ఏమిటి?", "విఫలం కావడం అసాధ్యం అయితే మీరు ఏమి చేస్తారు?"], "kn": ["ನಿಮ್ಮ ವಯಸ್ಸು ಎಷ್ಟು?", "ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸ್ಥಿತಿಯನ್ನು ಯಾವುದು ಚೆನ್ನಾಗಿ ವಿವರಿಸುತ್ತದೆ?", "ಈಗ ನಿಮಗೆ ಅತ್ಯಂತ ಮುಖ್ಯವಾದದ್ದು ಏನು?", "5 ವರ್ಷಗಳ ನಂತರ ನೀವು ನಿಮ್ಮನ್ನು ಎಲ್ಲಿ ನೋಡಲು ಬಯಸುತ್ತೀರಿ?", "ಇಂದು ನಿಮ್ಮ ದೊಡ್ಡ ಸವಾಲು ಏನು?", "ನಿಮ್ಮ ಅಂದಾಜು ಮಾಸಿಕ ಆದಾಯ ಎಷ್ಟು?", "ನಿಮ್ಮ ಉಳಿತಾಯದ ಅಭ್ಯಾಸ ಹೇಗಿದೆ?", "ಪ್ರತಿ ದಿನ ನಿಮ್ಮ ಬೆಳವಣಿಗೆಗೆ ಎಷ್ಟು focused ಸಮಯ ಕೊಡಬಹುದು?", "ನಿಮ್ಮ ಭವಿಷ್ಯದ ಬಗ್ಗೆ ನಿಮಗೆ ಹೆಚ್ಚು ಚಿಂತೆ ಏನು?", "ವಿಫಲತೆ ಅಸಾಧ್ಯವಾಗಿದ್ದರೆ ನೀವು ಏನು ಮಾಡುತ್ತೀರಿ?"], "ml": ["നിങ്ങളുടെ പ്രായം എത്ര?", "നിങ്ങളുടെ നിലവിലെ സ്ഥിതി ഏതാണ്?", "ഇപ്പോൾ നിങ്ങള്ക്ക് ഏറ്റവും പ്രധാനപ്പെട്ടത് എന്താണ്?", "5 വർഷത്തിന് ശേഷം നിങ്ങളെ എവിടെ കാണാൻ ആഗ്രഹിക്കുന്നു?", "ഇന്നത്തെ നിങ്ങളുടെ ഏറ്റവും വലിയ വെല്ലുവിളി എന്താണ്?", "നിങ്ങളുടെ ഏകദേശ മാസവരുമാനം എത്രയാണ്?", "നിങ്ങളുടെ സേവിംഗ് ശീലം എങ്ങനെയാണ്?", "പ്രതിദിനം നിങ്ങളുടെ വളർച്ചയ്ക്ക് എത്ര focused സമയം നൽകാം?", "ഭാവിയെ കുറിച്ചുള്ള നിങ്ങളുടെ ഏറ്റവും വലിയ ആശങ്ക എന്താണ്?", "പരാജയം അസാധ്യമാണെങ്കിൽ നിങ്ങൾ എന്ത് ചെയ്യും?"], "or": ["ଆପଣଙ୍କ ବୟସ କେତେ?", "ଆପଣଙ୍କ ବର୍ତ୍ତମାନ ସ୍ଥିତି କଣ?", "ଏବେ ଆପଣଙ୍କ ପାଇଁ ସବୁଠୁ ଦରକାରୀ କଣ?", "୫ ବର୍ଷ ପରେ ଆପଣ ନିଜକୁ କେଉଁଠି ଦେଖିବାକୁ ଚାହାନ୍ତି?", "ଆଜି ଆପଣଙ୍କ ସବୁଠାରୁ ବଡ଼ ଚ୍ୟାଲେଞ୍ଜ କଣ?", "ଆପଣଙ୍କ ଆନୁମାନିକ ମାସିକ ଆୟ କେତେ?", "ଆପଣଙ୍କ ସଞ୍ଚୟ ଅଭ୍ୟାସ କିପରି?", "ପ୍ରତିଦିନ ଆପଣ ନିଜ ବିକାଶ ପାଇଁ କେତେ focused ସମୟ ଦେଇପାରିବେ?", "ଭବିଷ୍ୟତ ନେଇ ଆପଣଙ୍କ ସବୁଠାରୁ ବଡ଼ ଚିନ୍ତା କଣ?", "ଯଦି ବିଫଳତା ସମ୍ଭବ ନଥାନ୍ତା, ଆପଣ କଣ କରିଥାନ୍ତେ?"], "as": ["আপোনাৰ বয়স কিমান?", "আপোনাৰ বৰ্তমান অৱস্থা কোনটো?", "এই মুহূর্তত আপোনাৰ বাবে আটাইতকৈ গুৰুত্বপূৰ্ণ কি?", "৫ বছৰৰ পিছত আপুনি নিজকে ক’ত দেখিবলৈ বিচাৰে?", "আজি আপোনাৰ আটাইতকৈ ডাঙৰ চেলেঞ্জ কি?", "আপোনাৰ আনুমানিক মাহিলি আয় কিমান?", "আপোনাৰ সঞ্চয়ৰ অভ্যাস কেনেকুৱা?", "প্ৰতিদিনে নিজৰ উন্নতিৰ বাবে কিমান focused সময় দিব পাৰে?", "ভৱিষ্যৎ লৈ আপোনাৰ আটাইতকৈ ডাঙৰ চিন্তা কি?", "যদি ব্যর্থতা অসম্ভৱ হ’লহেঁতেন, আপুনি কি কৰিলেহেঁতেন?"], "ur": ["آپ کی عمر کیا ہے؟", "آپ کی موجودہ صورتحال کیا ہے؟", "اس وقت آپ کے لیے سب سے اہم کیا ہے؟", "5 سال بعد آپ خود کو کہاں دیکھنا چاہتے ہیں؟", "آج آپ کا سب سے بڑا چیلنج کیا ہے؟", "آپ کی اندازاً ماہانہ آمدنی کتنی ہے؟", "آپ کی بچت کی عادت کیسی ہے؟", "آپ روزانہ اپنی ترقی کے لیے کتنا focused وقت دے سکتے ہیں؟", "مستقبل کے بارے میں آپ کو سب سے زیادہ کس بات کی فکر ہے؟", "اگر ناکامی ممکن ہی نہ ہو تو آپ کیا کریں گے؟"]};
+
+const C={"en": {"loading": "Building your possible futures…", "loadingSub": "This usually takes a few seconds.", "cancel": "Cancel", "retry": "Retry", "timeout": "The AI took too long to respond. Please try again.", "error": "Something went wrong. Please try again.", "chatPill": "FUTURE SELF CHAT", "chatSub": "Choose a scenario and ask what you should do next.", "intro": "I am your possible Future Self from this scenario. What decision are you thinking about today?", "placeholder": "Ask your Future Self…", "send": "Send", "backResults": "Back to Results", "path": "Path", "savedBtn": "My Saved Futures", "savedPill": "SAVED FUTURES", "savedTitle": "My Saved Futures", "savedSub": "Your reports are saved in this browser on this device.", "noSaved": "No saved future reports yet.", "open": "Open", "delete": "Delete", "savedBack": "Back", "savedOn": "Saved"}, "hi": {"loading": "आपके संभावित भविष्य तैयार किए जा रहे हैं…", "loadingSub": "आमतौर पर इसमें कुछ ही सेकंड लगते हैं।", "cancel": "रद्द करें", "retry": "फिर कोशिश करें", "timeout": "AI को जवाब देने में अधिक समय लग गया। कृपया फिर कोशिश करें।", "error": "कुछ गड़बड़ हुई। कृपया फिर कोशिश करें।", "chatPill": "FUTURE SELF CHAT", "chatSub": "एक रास्ता चुनें और पूछें कि अब आपको क्या करना चाहिए।", "intro": "मैं इस परिदृश्य में आपका संभावित Future Self हूँ। आज आप किस निर्णय के बारे में सोच रहे हैं?", "placeholder": "अपने Future Self से पूछें…", "send": "भेजें", "backResults": "परिणाम पर वापस", "path": "रास्ता", "savedBtn": "मेरे सहेजे हुए भविष्य", "savedPill": "सहेजे हुए भविष्य", "savedTitle": "मेरे सहेजे हुए भविष्य", "savedSub": "आपकी रिपोर्ट इस डिवाइस के इसी ब्राउज़र में सुरक्षित है।", "noSaved": "अभी कोई सहेजी हुई भविष्य रिपोर्ट नहीं है।", "open": "खोलें", "delete": "हटाएँ", "savedBack": "वापस", "savedOn": "सहेजा गया"}, "hinglish": {"loading": "Aapke possible futures ban rahe hain…", "loadingSub": "Usually kuch hi seconds lagte hain.", "cancel": "Cancel", "retry": "Phir Try Karein", "timeout": "AI ko response dene me zyada time lag gaya. Please phir try karein.", "error": "Kuch problem hui. Please phir try karein.", "chatPill": "FUTURE SELF CHAT", "chatSub": "Ek scenario choose kijiye aur poochhiye ki ab aapko kya karna chahiye.", "intro": "Main is scenario ka aapka possible Future Self hoon. Aaj aap kis decision ke baare me soch rahe hain?", "placeholder": "Apne Future Self se poochhiye…", "send": "Bhejein", "backResults": "Results Par Wapas", "path": "Path", "savedBtn": "Mere Saved Futures", "savedPill": "SAVED FUTURES", "savedTitle": "Mere Saved Futures", "savedSub": "Aapki reports aapke NEXTME account me securely save hain aur login karke kisi bhi device se access ki ja sakti hain.", "noSaved": "Abhi koi saved future report nahi hai.", "open": "Kholein", "delete": "Delete", "savedBack": "Wapas", "savedOn": "Saved"}};
+const CHAT_I18N={"en": {"pill": "FUTURE SELF CHAT", "title": "Talk to Future You", "sub": "Choose a scenario and ask what you should do next.", "intro": "I am your possible Future Self from this scenario. What decision are you thinking about today?", "placeholder": "Ask your Future Self...", "send": "Send", "back": "Back to Results", "path": "Path"}, "hi": {"pill": "FUTURE SELF CHAT", "title": "अपने Future Self से बात करें", "sub": "एक रास्ता चुनें और पूछें कि अब आपको क्या करना चाहिए।", "intro": "मैं इस परिदृश्य में आपका संभावित Future Self हूँ। आज आप किस निर्णय के बारे में सोच रहे हैं?", "placeholder": "अपने Future Self से पूछें...", "send": "भेजें", "back": "परिणाम पर वापस", "path": "रास्ता"}, "hinglish": {"pill": "FUTURE SELF CHAT", "title": "Future Me Se Baat Karein", "sub": "Ek scenario choose kijiye aur poochhiye ki ab aapko kya karna chahiye.", "intro": "Main is scenario ka aapka possible Future Self hoon. Aaj aap kis decision ke baare me soch rahe hain?", "placeholder": "Apne Future Self se poochhiye...", "send": "Bhejein", "back": "Results Par Wapas", "path": "Path"}, "bn": {"pill": "FUTURE SELF CHAT", "title": "Future Me-এর সাথে কথা বলুন", "sub": "একটি পথ বেছে নিয়ে জিজ্ঞেস করুন এখন কী করা উচিত।", "intro": "আমি এই পরিস্থিতিতে আপনার সম্ভাব্য Future Self। আজ আপনি কোন সিদ্ধান্ত নিয়ে ভাবছেন?", "placeholder": "আপনার Future Self-কে জিজ্ঞেস করুন...", "send": "পাঠান", "back": "ফলাফলে ফিরুন", "path": "পথ"}, "mr": {"pill": "FUTURE SELF CHAT", "title": "Future Me शी बोला", "sub": "एक मार्ग निवडा आणि पुढे काय करावे ते विचारा.", "intro": "या परिस्थितीत मी तुमचा संभाव्य Future Self आहे. आज तुम्ही कोणत्या निर्णयाचा विचार करत आहात?", "placeholder": "तुमच्या Future Self ला विचारा...", "send": "पाठवा", "back": "निकालांकडे परत", "path": "मार्ग"}, "gu": {"pill": "FUTURE SELF CHAT", "title": "Future Me સાથે વાત કરો", "sub": "એક માર્ગ પસંદ કરો અને હવે શું કરવું તે પૂછો.", "intro": "આ પરિસ્થિતિમાં હું તમારું સંભવિત Future Self છું. આજે તમે કયા નિર્ણય વિશે વિચારી રહ્યા છો?", "placeholder": "તમારા Future Self ને પૂછો...", "send": "મોકલો", "back": "પરિણામો પર પાછા", "path": "માર્ગ"}, "pa": {"pill": "FUTURE SELF CHAT", "title": "Future Me ਨਾਲ ਗੱਲ ਕਰੋ", "sub": "ਇੱਕ ਰਸਤਾ ਚੁਣੋ ਅਤੇ ਪੁੱਛੋ ਕਿ ਹੁਣ ਕੀ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ।", "intro": "ਇਸ ਸਥਿਤੀ ਵਿੱਚ ਮੈਂ ਤੁਹਾਡਾ ਸੰਭਾਵੀ Future Self ਹਾਂ। ਅੱਜ ਤੁਸੀਂ ਕਿਸ ਫੈਸਲੇ ਬਾਰੇ ਸੋਚ ਰਹੇ ਹੋ?", "placeholder": "ਆਪਣੇ Future Self ਨੂੰ ਪੁੱਛੋ...", "send": "ਭੇਜੋ", "back": "ਨਤੀਜਿਆਂ ਵੱਲ ਵਾਪਸ", "path": "ਰਸਤਾ"}, "ta": {"pill": "FUTURE SELF CHAT", "title": "Future Me உடன் பேசுங்கள்", "sub": "ஒரு பாதையைத் தேர்ந்தெடுத்து அடுத்து என்ன செய்ய வேண்டும் என்று கேளுங்கள்.", "intro": "இந்த சூழலில் நான் உங்கள் சாத்தியமான Future Self. இன்று எந்த முடிவைப் பற்றி நீங்கள் சிந்திக்கிறீர்கள்?", "placeholder": "உங்கள் Future Self-ஐ கேளுங்கள்...", "send": "அனுப்பு", "back": "முடிவுகளுக்கு திரும்பு", "path": "பாதை"}, "te": {"pill": "FUTURE SELF CHAT", "title": "Future Me‌తో మాట్లాడండి", "sub": "ఒక మార్గాన్ని ఎంచుకుని ఇప్పుడు ఏమి చేయాలో అడగండి.", "intro": "ఈ పరిస్థితిలో నేను మీ సాధ్యమైన Future Self. ఈరోజు మీరు ఏ నిర్ణయం గురించి ఆలోచిస్తున్నారు?", "placeholder": "మీ Future Self‌ను అడగండి...", "send": "పంపండి", "back": "ఫలితాలకు తిరిగి", "path": "మార్గం"}, "kn": {"pill": "FUTURE SELF CHAT", "title": "Future Me ಜೊತೆ ಮಾತನಾಡಿ", "sub": "ಒಂದು ಮಾರ್ಗ ಆಯ್ಕೆ ಮಾಡಿ, ಈಗ ಏನು ಮಾಡಬೇಕು ಎಂದು ಕೇಳಿ.", "intro": "ಈ ಪರಿಸ್ಥಿತಿಯಲ್ಲಿ ನಾನು ನಿಮ್ಮ ಸಾಧ್ಯ Future Self. ಇಂದು ನೀವು ಯಾವ ನಿರ್ಧಾರದ ಬಗ್ಗೆ ಯೋಚಿಸುತ್ತಿದ್ದೀರಿ?", "placeholder": "ನಿಮ್ಮ Future Self ಅನ್ನು ಕೇಳಿ...", "send": "ಕಳುಹಿಸಿ", "back": "ಫಲಿತಾಂಶಗಳಿಗೆ ಹಿಂತಿರುಗಿ", "path": "ಮಾರ್ಗ"}, "ml": {"pill": "FUTURE SELF CHAT", "title": "Future Me-നോട് സംസാരിക്കൂ", "sub": "ഒരു വഴി തിരഞ്ഞെടുക്കുക, ഇനി എന്ത് ചെയ്യണമെന്ന് ചോദിക്കുക.", "intro": "ഈ സാഹചര്യത്തിൽ ഞാൻ നിങ്ങളുടെ സാധ്യതയുള്ള Future Self ആണ്. ഇന്ന് ഏത് തീരുമാനത്തെക്കുറിച്ചാണ് നിങ്ങൾ ചിന്തിക്കുന്നത്?", "placeholder": "നിങ്ങളുടെ Future Self-നോട് ചോദിക്കുക...", "send": "അയയ്ക്കുക", "back": "ഫലങ്ങളിലേക്ക് മടങ്ങുക", "path": "വഴി"}, "or": {"pill": "FUTURE SELF CHAT", "title": "Future Me ସହ କଥାହୁଅନ୍ତୁ", "sub": "ଏକ ପଥ ବାଛନ୍ତୁ ଏବଂ ଏବେ କଣ କରିବା ଉଚିତ ପଚାରନ୍ତୁ।", "intro": "ଏହି ପରିସ୍ଥିତିରେ ମୁଁ ଆପଣଙ୍କ ସମ୍ଭାବ୍ୟ Future Self। ଆଜି ଆପଣ କେଉଁ ନିଷ୍ପତ୍ତି ବିଷୟରେ ଭାବୁଛନ୍ତି?", "placeholder": "ଆପଣଙ୍କ Future Self କୁ ପଚାରନ୍ତୁ...", "send": "ପଠାନ୍ତୁ", "back": "ଫଳାଫଳକୁ ଫେରନ୍ତୁ", "path": "ପଥ"}, "as": {"pill": "FUTURE SELF CHAT", "title": "Future Me-ৰ সৈতে কথা পাতক", "sub": "এটা পথ বাছি লৈ এতিয়া কি কৰিব লাগে সুধক।", "intro": "এই পৰিস্থিতিত মই আপোনাৰ সম্ভাৱ্য Future Self। আজি আপুনি কোন সিদ্ধান্তৰ বিষয়ে ভাবি আছে?", "placeholder": "আপোনাৰ Future Self-ক সুধক...", "send": "পঠিয়াওক", "back": "ফলাফললৈ উভতি যাওক", "path": "পথ"}, "ur": {"pill": "FUTURE SELF CHAT", "title": "Future Me سے بات کریں", "sub": "ایک راستہ منتخب کریں اور پوچھیں کہ اب کیا کرنا چاہیے۔", "intro": "اس منظرنامے میں میں آپ کا ممکنہ Future Self ہوں۔ آج آپ کس فیصلے کے بارے میں سوچ رہے ہیں؟", "placeholder": "اپنے Future Self سے پوچھیں...", "send": "بھیجیں", "back": "نتائج پر واپس", "path": "راستہ"}};
+const DEC_UI={"en": {"futureTitle": "Explore My Future", "futureSub": "Build three realistic 5-year scenarios and a 30-day action plan.", "decisionTitle": "Test a Decision", "decisionSub": "Compare Option A, B or C before making a major life decision.", "savedTitle": "My Saved Futures", "savedSub": "Reopen your previous simulations and reports.", "formTitle": "Test a Life Decision", "formSub": "Describe the decision and the options you are considering.", "q": "What decision are you trying to make?", "options": "Your options", "priority": "What matters most?", "horizon": "Time horizon", "back": "Back", "simulate": "Simulate Decision", "loading": "Simulating your options…", "loadingSub": "Comparing trade-offs, risks and possible paths.", "result": "Your Decision Map", "verify": "Before deciding, verify these", "next7": "Your next 7 days", "best": "Best-fit option", "confidence": "Confidence", "uncertainty": "Biggest uncertainty", "retry": "Retry"}, "hi": {"futureTitle": "मेरा भविष्य देखें", "futureSub": "अगले 5 वर्षों के तीन संभावित रास्ते और 30-दिन का action plan देखें।", "decisionTitle": "एक निर्णय टेस्ट करें", "decisionSub": "बड़ा फैसला लेने से पहले Option A, B या C की तुलना करें।", "savedTitle": "मेरे सहेजे हुए भविष्य", "savedSub": "अपनी पिछली simulations और reports फिर खोलें।", "formTitle": "जीवन का निर्णय टेस्ट करें", "formSub": "फैसला और जिन विकल्पों पर आप विचार कर रहे हैं, उन्हें लिखें।", "q": "आप कौन-सा निर्णय लेना चाहते हैं?", "options": "आपके विकल्प", "priority": "आपके लिए सबसे महत्वपूर्ण क्या है?", "horizon": "समय अवधि", "back": "पीछे", "simulate": "निर्णय simulate करें", "loading": "आपके विकल्पों का simulation हो रहा है…", "loadingSub": "Trade-offs, risks और possible paths compare किए जा रहे हैं।", "result": "आपका Decision Map", "verify": "निर्णय से पहले ये बातें verify करें", "next7": "आपके अगले 7 दिन", "best": "सबसे उपयुक्त विकल्प", "confidence": "विश्वास स्तर", "uncertainty": "सबसे बड़ी अनिश्चितता", "retry": "फिर कोशिश करें"}, "hinglish": {"futureTitle": "Mera Future Dekhein", "futureSub": "3 realistic 5-year scenarios aur 30-day action plan dekhiye.", "decisionTitle": "Ek Decision Test Karein", "decisionSub": "Bada decision lene se pehle Option A, B ya C compare kijiye.", "savedTitle": "Mere Saved Futures", "savedSub": "Apni purani simulations aur reports dobara kholiye.", "formTitle": "Life Decision Test Karein", "formSub": "Decision aur jin options par aap soch rahe hain, unhe likhiye.", "q": "Aap kaunsa decision lene ki koshish kar rahe hain?", "options": "Aapke options", "priority": "Aapke liye sabse important kya hai?", "horizon": "Time horizon", "back": "Back", "simulate": "Decision Simulate Karein", "loading": "Aapke options simulate ho rahe hain…", "loadingSub": "Trade-offs, risks aur possible paths compare ho rahe hain.", "result": "Aapka Decision Map", "verify": "Decision lene se pehle ye verify karein", "next7": "Aapke agale 7 din", "best": "Best-fit option", "confidence": "Confidence", "uncertainty": "Biggest uncertainty", "retry": "Phir Try Karein"}};
+let lang="en";
+
+
+function setLang(l){
+  lang=l;
+  localStorage.setItem("nextme_language",l);
+  hide("lang"); show("welcome");
+  const t=T[l]||T.en, c=C[l]||C.en, d=DEC_UI[l]||DEC_UI.en;
+  document.querySelector("#welcome h1").textContent=t.hero;
+  const ps=document.querySelectorAll("#welcome p");
+  if(ps.length) ps[0].textContent=t.sub;
+  document.getElementById('futureChoiceTitle').textContent=d.futureTitle;
+  document.getElementById('futureChoiceSub').textContent=d.futureSub;
+  document.getElementById('decisionChoiceTitle').textContent=d.decisionTitle;
+  document.getElementById('decisionChoiceSub').textContent=d.decisionSub;
+  document.getElementById('savedChoiceTitle').textContent=d.savedTitle;
+  document.getElementById('savedChoiceSub').textContent=d.savedSub;
+  document.documentElement.dir=(l==="ur"?"rtl":"ltr");
+}
+
+function start(){
+  if(!requireLogin()) return;
+  hide('welcome');
+  show('quiz');
+  render();
+}
+
+function render(){
+  const q=qs[idx];
+  const t=T[lang]||T.en;
+  const qtxt=(Q[lang]||Q.en)[idx];
+
+  document.getElementById('step').textContent=`${t.qprefix} ${idx+1} / ${qs.length}`;
+  document.getElementById('bar').style.width=`${((idx+1)/qs.length)*100}%`;
+
+  let html=`<div class="q">${qtxt}</div><p class="muted">${t.hint}</p>`;
+
+  if(q[2]==='options'){
+    html+=`<div class="options">${
+      q[3].map(x=>`<div class="opt ${profile[q[0]]===x?'sel':''}" onclick='pick(${JSON.stringify(x)})'>${x}</div>`).join('')
+    }</div>`;
+  } else if(q[2]==='number'){
+    html+=`<input id="field" type="number" min="12" max="100" value="${profile[q[0]]||''}" placeholder="Enter age">`;
+  } else {
+    html+=`<textarea id="field" placeholder="${lang==='hi'?'अपना उत्तर लिखें':(lang==='hinglish'?'Apna answer likhiye':'Write your answer')}">${profile[q[0]]||''}</textarea>`;
+  }
+
+  document.getElementById('qbox').innerHTML=html;
+
+  const backBtn=document.getElementById('backBtn');
+  if(backBtn) backBtn.textContent=t.back;
+
+  const nextBtn=document.getElementById('next');
+  if(nextBtn) nextBtn.textContent=(idx===qs.length-1 ? t.generate : t.next);
+}
+
+function pick(x){profile[qs[idx][0]]=x;render()}
+function save(){if(qs[idx][2]!='options'){let e=document.getElementById('field');if(e)profile[qs[idx][0]]=e.value.trim()}}
+function back(){save();if(idx>0){idx--;render()}else{hide('quiz');show('welcome')}}
+async function next(){save();if(!profile[qs[idx][0]])return alert('Please answer this question first.');if(idx<9){idx++;render();return}await generate()}
+let generationController=null;
+function cancelGeneration(){if(generationController)generationController.abort();hide('loading');show('quiz');}
+async function generate(){const c=C[lang]||C.en;localStorage.setItem('nextme_profile',JSON.stringify(profile));hide('quiz');hide('result');show('loading');document.getElementById('loadingTitle').textContent=c.loading;document.getElementById('loadingSub').textContent=c.loadingSub;document.getElementById('cancelGenBtn').textContent=c.cancel;document.getElementById('error').innerHTML='';document.getElementById('retryArea').innerHTML='';generationController=new AbortController();const timer=setTimeout(()=>generationController.abort(),45000);try{let r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:profile,language:lang,language_name:(LANG_META[lang]||LANG_META.en).name}),signal:generationController.signal});let d=await r.json();if(!r.ok)throw Error(d.error||c.error);result=d;localStorage.setItem('nextme_result',JSON.stringify(result));saveCurrentReport();paint();hide('loading');show('result')}catch(e){hide('loading');show('result');const msg=(e.name==='AbortError'?c.timeout:(e.message||c.error));document.getElementById('error').innerHTML=`<div class=err>${esc(msg)}</div>`;document.getElementById('retryArea').innerHTML=`<button class="primary" onclick="retryGeneration()">${esc(c.retry)}</button>`}finally{clearTimeout(timer);generationController=null}}
+function retryGeneration(){hide('result');generate();}
+
+function paint(){
+ const t=T[lang]||T.en, c=C[lang]||C.en;
+ const resultLabel=document.getElementById('resultLabel'); if(resultLabel) resultLabel.textContent=t.result||'Your NEXTME';
+ const resultTitle=document.getElementById('resultTitle'); if(resultTitle) resultTitle.textContent=t.result||'Your NEXTME';
+ const whyTitle=document.getElementById('whyTitle'); if(whyTitle) whyTitle.textContent=t.why||'Why am I seeing this future?';
+ const daysTitle=document.getElementById('daysTitle'); if(daysTitle) daysTitle.textContent=t.days||'Your next 30 days';
+ const restartBtn=document.getElementById('restartBtn'); if(restartBtn) restartBtn.textContent=t.restart||'Start Again';
+ const chatBtn=document.getElementById('chatBtn'); if(chatBtn) chatBtn.textContent=t.chat||'Talk to Future Me';
+ const arr=[['path_a','A'],['path_b','B'],['path_c','C']];
+ const paths=document.getElementById('paths');
+ if(paths){
+  paths.innerHTML=arr.map(([k,n])=>{
+   const p=result&&result[k]?result[k]:{};
+   return `<div class=path><span class=pill>${esc(c.path||'Path')} ${n}</span><h3>${esc(p.title||'')}</h3><p>${esc(p.summary||'')}</p><b>${esc(t.opp||'Opportunity')}</b><p>${esc(p.biggest_opportunity||'')}</p><b>${esc(t.risk||'Risk')}</b><p>${esc(p.biggest_risk||'')}</p><ul>${(p.actions_now||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  }).join('');
+ }
+ const fm=document.getElementById('futureMsg'); if(fm) fm.innerHTML=`<b>${esc(t.chat||'Message from Future You')}</b><br><br>${esc((result&&result.future_message)||'')}`;
+ const why=document.getElementById('why'); if(why) why.innerHTML=((result&&result.why_this_future)||[]).map(x=>`<div class=action>${esc(x)}</div>`).join('');
+ const actions=document.getElementById('actions'); if(actions) actions.innerHTML=((result&&result.next_30_days)||[]).map((x,i)=>`<div class=action><b>${i+1}.</b> ${esc(x)}</div>`).join('');
+}
+function openChat(){
+ const c=CHAT_I18N[lang]||CHAT_I18N.en;
+ document.getElementById('chatPill').textContent=c.pill;
+ document.getElementById('chatTitle').textContent=c.title;
+ document.getElementById('chatSub').textContent=c.sub;
+ document.getElementById('sendBtn').textContent=c.send;
+ document.getElementById('backResultBtn').textContent=c.back;
+ document.getElementById('chatInput').placeholder=c.placeholder;
+ hide('result'); show('chat');
+ document.getElementById('scenarioBtns').innerHTML=['path_a','path_b','path_c'].map((k,i)=>`<button class="${selected===k?'primary':'secondary'}" onclick="choose('${k}')">${esc(c.path)} ${'ABC'[i]}</button>`).join('');
+ document.getElementById('chatlog').innerHTML=`<div class="bubble ai">${esc(c.intro)}</div>`;
+}
+
+
+function choose(k){
+  selected=k;
+  history=[];
+  openChat();
+}
+
+function closeChat(){
+  hide('chat');
+  show('result');
+}
+
+function addBubble(text,who){
+  const log=document.getElementById('chatlog');
+  if(!log) return;
+  const el=document.createElement('div');
+  el.className='bubble '+who;
+  el.textContent=text;
+  log.appendChild(el);
+  log.scrollTop=log.scrollHeight;
+}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const btn=document.getElementById('sendBtn');
+  const message=(input?.value||'').trim();
+  if(!message) return;
+
+  addBubble(message,'me');
+  input.value='';
+  history.push({role:'user',content:message});
+
+  if(btn){
+    btn.disabled=true;
+    btn.textContent='...';
+  }
+
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),45000);
+
+  try{
+    const r=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        profile:profile,
+        selected_path:(result && result[selected]) ? result[selected] : {},
+        history:history,
+        message:message,
+        language:lang,
+        language_name:(LANG_META[lang]||LANG_META.en).name
+      }),
+      signal:controller.signal
+    });
+
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Chat failed');
+
+    const reply=String(d.reply||'')
+      .replace(/\*\*/g,'')
+      .replace(/^[-*]\s?/gm,'• ')
+      .trim();
+
+    addBubble(reply || 'No response received.','ai');
+    history.push({role:'assistant',content:d.reply||reply});
+  }catch(e){
+    let msg='Chat error. Please try again.';
+    if(e.name==='AbortError'){
+      if(lang==='hi') msg='जवाब आने में ज्यादा समय लग गया। कृपया फिर कोशिश करें।';
+      else if(lang==='hinglish') msg='Response aane me zyada time lag gaya. Please phir try karein.';
+      else msg='The response took too long. Please try again.';
+    }else if(e.message){
+      msg=e.message;
+    }
+    addBubble(msg,'ai');
+  }finally{
+    clearTimeout(timer);
+    if(btn){
+      btn.disabled=false;
+      const c=(typeof CHAT_I18N!=='undefined' && (CHAT_I18N[lang]||CHAT_I18N.en));
+      btn.textContent=c ? c.send : 'Send';
+    }
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  const input=document.getElementById('chatInput');
+  if(e.key==='Enter' && input===document.activeElement && !e.shiftKey){
+    e.preventDefault();
+    sendChat();
+  }
+});
+
+
+function closeDecision(){hide('decision');show('welcome')}
+
+function togglePriority(el,v){
+ el.classList.toggle('sel');
+ if(el.classList.contains('sel')){
+   if(!selectedPriorities.includes(v))selectedPriorities.push(v);
+ } else {
+   selectedPriorities=selectedPriorities.filter(x=>x!==v);
+ }
+}
+
+async function simulateDecision(){
+ const d=DEC_UI[lang]||DEC_UI.en;
+ const decision=document.getElementById('decisionText').value.trim();
+ const options=[document.getElementById('optA').value.trim(),document.getElementById('optB').value.trim(),document.getElementById('optC').value.trim()].filter(Boolean);
+ if(!decision || options.length<2){alert('Please enter the decision and at least two options.');return}
+ const horizon=document.getElementById('decisionHorizon').value;
+ lastDecisionPayload={decision,options,priorities:selectedPriorities,horizon};
+ hide('decision');show('decisionLoading');
+ document.getElementById('decisionLoadingTitle').textContent=d.loading;
+ document.getElementById('decisionLoadingSub').textContent=d.loadingSub;
+ const controller=new AbortController();
+ const timer=setTimeout(()=>controller.abort(),45000);
+ try{
+   const r=await fetch('/api/decision',{
+     method:'POST',
+     headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({profile,decision,options,priorities:selectedPriorities,horizon,language_name:(LANG_META[lang]||LANG_META.en).name}),
+     signal:controller.signal
+   });
+   const data=await r.json();
+   if(!r.ok)throw Error(data.error||'Decision simulation failed');
+   decisionResultData=data;
+   saveDecisionReport();
+   renderDecision();
+   hide('decisionLoading');show('decisionResult');
+ }catch(e){
+   hide('decisionLoading');show('decisionResult');
+   document.getElementById('decisionError').innerHTML=`<div class=err>${esc(e.name==='AbortError'?'The AI took too long. Please retry.':e.message)}</div>`;
+   document.getElementById('decisionRetry').innerHTML=`<button class="primary" onclick="retryDecision()">${esc(d.retry)}</button>`;
+ }finally{clearTimeout(timer)}
+}
+
+function retryDecision(){
+ document.getElementById('decisionError').innerHTML='';
+ document.getElementById('decisionRetry').innerHTML='';
+ hide('decisionResult');show('decision');
+ setTimeout(simulateDecision,50);
+}
+
+function metric(name,val){
+ const v=Math.max(0,Math.min(100,Number(val)||0));
+ return `<div class="metric"><div>${esc(name)}<div class="scorebar"><i style="width:${v}%"></i></div></div><b>${v}</b></div>`;
+}
+
+function renderDecision(){
+ const d=DEC_UI[lang]||DEC_UI.en, x=decisionResultData;
+ document.getElementById('decisionError').innerHTML='';
+ document.getElementById('decisionRetry').innerHTML='';
+ document.getElementById('decisionResultTitle').textContent=d.result;
+ document.getElementById('verifyTitle').textContent=d.verify;
+ document.getElementById('next7Title').textContent=d.next7;
+ document.getElementById('decisionBest').innerHTML=`<h3>${esc(d.best)}: ${esc(x.best_fit_option)}</h3><p><b>${esc(d.confidence)}:</b> ${esc(x.confidence)}</p><p>${esc(x.recommendation_summary)}</p><p><b>${esc(d.uncertainty)}:</b> ${esc(x.biggest_uncertainty)}</p><ul>${(x.why_best_fit||[]).map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`;
+ document.getElementById('decisionScores').innerHTML=(x.option_analysis||[]).map(o=>`<div class="scorecard"><h3>${esc(o.option)}</h3><p>${esc(o.summary)}</p>${metric('Overall',o.overall_score)}${metric('Money',o.money)}${metric('Stability',o.stability)}${metric('Growth',o.growth)}${metric('Family/Lifestyle',o.family_lifestyle)}${metric('Time',o.time_flexibility)}${metric('Reversibility',o.reversibility)}<h4>1 year</h4><p>${esc(o.year_1)}</p><h4>3 years</h4><p>${esc(o.year_3)}</p><h4>5 years</h4><p>${esc(o.year_5)}</p><h4>Risks</h4><ul>${(o.top_risks||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>`).join('');
+ document.getElementById('decisionVerify').innerHTML=(x.what_to_verify||[]).map(v=>`<div class="action">${esc(v)}</div>`).join('');
+ document.getElementById('decisionNext7').innerHTML=(x.next_7_days||[]).map((v,i)=>`<div class="action"><b>${i+1}.</b> ${esc(v)}</div>`).join('');
+}
+
+function closeDecisionResult(){hide('decisionResult');show('welcome')}
+
+function copyDecisionSummary(){
+ if(!decisionResultData)return;
+ const x=decisionResultData;
+ const txt=`NEXTME Decision Simulator\nDecision: ${lastDecisionPayload?.decision||''}\nBest-fit: ${x.best_fit_option}\nConfidence: ${x.confidence}\n\n${x.recommendation_summary}\n\nBefore deciding:\n${(x.what_to_verify||[]).map(v=>'• '+v).join('\n')}`;
+ navigator.clipboard.writeText(txt).then(()=>alert('Decision summary copied.')).catch(()=>alert(txt));
+}
+
+function getDecisionReports(){
+ try{return JSON.parse(localStorage.getItem('nextme_saved_decisions')||'[]')}catch(e){return[]}
+}
+function saveDecisionReport(){
+  if(!decisionResultData) return;
+
+  const item={
+    id:Date.now(),
+    created:new Date().toISOString(),
+    language:lang,
+    payload:lastDecisionPayload,
+    result:decisionResultData
+  };
+
+  const arr=getDecisionReports();
+  arr.unshift(item);
+  localStorage.setItem('nextme_saved_decisions',JSON.stringify(arr.slice(0,20)));
+
+  const title=lastDecisionPayload?.decision || decisionResultData?.decision_title || 'Decision';
+  serverSaveItem('decision',title,item).then(serverId=>{
+    if(serverId){
+      item.server_id=serverId;
+      const updated=getDecisionReports();
+      const found=updated.find(x=>x.id===item.id);
+      if(found){
+        found.server_id=serverId;
+        localStorage.setItem('nextme_saved_decisions',JSON.stringify(updated));
+      }
+    }
+  });
+}
+
+function getSavedReports(){
+  try{
+    return JSON.parse(localStorage.getItem('nextme_saved_reports')||'[]');
+  }catch(e){
+    return [];
+  }
+}
+
+function saveCurrentReport(){
+  if(!result) return;
+
+  const item={
+    id:Date.now(),
+    created:new Date().toISOString(),
+    language:lang,
+    profile:JSON.parse(JSON.stringify(profile)),
+    result:JSON.parse(JSON.stringify(result))
+  };
+
+  const reports=getSavedReports();
+  reports.unshift(item);
+  localStorage.setItem('nextme_saved_reports',JSON.stringify(reports.slice(0,20)));
+
+  const title=result?.path_b?.title || result?.path_a?.title || 'NEXTME Future';
+  serverSaveItem('future',title,item).then(serverId=>{
+    if(serverId){
+      item.server_id=serverId;
+      const updated=getSavedReports();
+      const found=updated.find(x=>x.id===item.id);
+      if(found){
+        found.server_id=serverId;
+        localStorage.setItem('nextme_saved_reports',JSON.stringify(updated));
+      }
+    }
+  });
+}
+
+function openSaved(){
+  if(!requireLogin()) return;
+  const c=(typeof C!=='undefined' && (C[lang]||C.en)) || {
+    savedPill:'SAVED FUTURES',savedTitle:'My Saved Futures',
+    savedSub:'Your reports are saved in this browser on this device.',
+    savedBack:'Back',noSaved:'No saved future reports yet.',
+    open:'Open',delete:'Delete',savedOn:'Saved'
+  };
+  ['lang','welcome','quiz','loading','result','chat','decision','decisionLoading','decisionResult'].forEach(x=>{
+    const el=document.getElementById(x); if(el) el.classList.add('hidden');
+  });
+  const saved=document.getElementById('saved');
+  if(saved) saved.classList.remove('hidden');
+  if(document.getElementById('savedPill')) document.getElementById('savedPill').textContent=c.savedPill;
+  if(document.getElementById('savedTitle')) document.getElementById('savedTitle').textContent=c.savedTitle;
+  if(document.getElementById('savedSub')) document.getElementById('savedSub').textContent=c.savedSub;
+  if(document.getElementById('savedBackBtn')) document.getElementById('savedBackBtn').textContent=c.savedBack;
+  renderSaved();
+}
+
+async function renderSaved(){
+  const c=(typeof C!=='undefined' && (C[lang]||C.en)) || {
+    noSaved:'No saved future reports yet.',open:'Open',delete:'Delete',savedOn:'Saved'
+  };
+
+  let futureReports=getSavedReports();
+  let decisionReports=getDecisionReports();
+
+  if(currentUser){
+    const serverItems=await fetchServerHistory();
+    const sf=serverItems.filter(x=>x.item_type==='future').map(x=>{
+      const p=x.payload||{};
+      return {...p, server_id:x.id, created:p.created||x.created_at};
+    });
+    const sd=serverItems.filter(x=>x.item_type==='decision').map(x=>{
+      const p=x.payload||{};
+      return {...p, server_id:x.id, created:p.created||x.created_at};
+    });
+
+    // Server account history is authoritative when logged in.
+    futureReports=sf;
+    decisionReports=sd;
+  }
+
+  window.__displayFutureReports=futureReports;
+  window.__displayDecisionReports=decisionReports;
+
+  const box=document.getElementById('savedList');
+  if(box){
+    if(!futureReports.length){
+      box.innerHTML=`<div class="action">${esc(c.noSaved||'No saved future reports yet.')}</div>`;
+    }else{
+      box.innerHTML=futureReports.map((r,i)=>{
+        const title=(r.result?.path_b?.title || r.result?.path_a?.title || 'NEXTME Future');
+        const date=new Date(r.created).toLocaleString();
+        return `<div class="saved-card">
+          <h3>${esc(title)}</h3>
+          <div class="saved-meta">${esc(c.savedOn||'Saved')}: ${esc(date)}</div>
+          <div class="saved-actions">
+            <button class="primary" onclick="loadSaved(${i})">${esc(c.open||'Open')}</button>
+            <button class="secondary" onclick="deleteSaved(${i})">${esc(c.delete||'Delete')}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  const dbox=document.getElementById('savedDecisionList');
+  const heading=document.getElementById('savedDecisionHeading');
+
+  if(heading){
+    heading.textContent=lang==='hi'?'सेव किए गए निर्णय':(lang==='hinglish'?'Saved Decisions':'Saved Decisions');
+  }
+
+  if(dbox){
+    if(!decisionReports.length){
+      dbox.innerHTML=`<div class="action">${
+        lang==='hi'?'अभी कोई saved decision नहीं है।':
+        (lang==='hinglish'?'Abhi koi saved decision nahi hai.':'No saved decisions yet.')
+      }</div>`;
+    }else{
+      dbox.innerHTML=decisionReports.map((r,i)=>{
+        const title=r.payload?.decision || r.result?.decision_title || 'Decision';
+        const best=r.result?.best_fit_option || '';
+        const confidence=r.result?.confidence || '';
+        const date=new Date(r.created).toLocaleString();
+        return `<div class="saved-card">
+          <h3>${esc(title)}</h3>
+          <div class="saved-meta">${esc(c.savedOn||'Saved')}: ${esc(date)}</div>
+          ${best?`<p><b>Best-fit:</b> ${esc(best)}</p>`:''}
+          ${confidence?`<p><b>Confidence:</b> ${esc(confidence)}</p>`:''}
+          <div class="saved-actions">
+            <button class="primary" onclick="loadSavedDecision(${i})">${esc(c.open||'Open')}</button>
+            <button class="secondary" onclick="deleteSavedDecision(${i})">${esc(c.delete||'Delete')}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function loadSaved(i){
+  const list=window.__displayFutureReports || getSavedReports();
+  const r=list[i];
+  if(!r) return;
+
+  lang=r.language||'en';
+  profile=r.profile||{};
+  result=r.result||null;
+  document.documentElement.dir=(lang==='ur'?'rtl':'ltr');
+
+  const saved=document.getElementById('saved');
+  if(saved) saved.classList.add('hidden');
+
+  paint();
+  const res=document.getElementById('result');
+  if(res) res.classList.remove('hidden');
+}
+
+async function deleteSaved(i){
+  const list=window.__displayFutureReports || getSavedReports();
+  const r=list[i];
+  if(!r) return;
+
+  if(r.server_id) await deleteServerHistory(r.server_id);
+
+  const local=getSavedReports().filter(x=>{
+    if(r.server_id && x.server_id) return x.server_id!==r.server_id;
+    return x.id!==r.id;
+  });
+  localStorage.setItem('nextme_saved_reports',JSON.stringify(local));
+  await renderSaved();
+}
+
+function loadSavedDecision(i){
+  const arr=window.__displayDecisionReports || getDecisionReports();
+  const r=arr[i];
+  if(!r) return;
+
+  lang=r.language||'en';
+  lastDecisionPayload=r.payload||null;
+  decisionResultData=r.result||null;
+  document.documentElement.dir=(lang==='ur'?'rtl':'ltr');
+
+  const saved=document.getElementById('saved');
+  if(saved) saved.classList.add('hidden');
+
+  renderDecision();
+  const rs=document.getElementById('decisionResult');
+  if(rs) rs.classList.remove('hidden');
+}
+
+async function deleteSavedDecision(i){
+  const arr=window.__displayDecisionReports || getDecisionReports();
+  const r=arr[i];
+  if(!r) return;
+
+  if(r.server_id) await deleteServerHistory(r.server_id);
+
+  const local=getDecisionReports().filter(x=>{
+    if(r.server_id && x.server_id) return x.server_id!==r.server_id;
+    return x.id!==r.id;
+  });
+  localStorage.setItem('nextme_saved_decisions',JSON.stringify(local));
+  await renderSaved();
+}
+
+function closeSaved(){
+  const saved=document.getElementById('saved');
+  if(saved) saved.classList.add('hidden');
+  const welcome=document.getElementById('welcome');
+  if(welcome) welcome.classList.remove('hidden');
+}
+
+
+let selectedPriorities=[];
+let lastDecisionPayload=null;
+let decisionResultData=null;
+
+function openDecision(){
+  if(!requireLogin()) return;
+  const d=(typeof DEC_UI!=='undefined' && (DEC_UI[lang]||DEC_UI.en)) || {
+    formTitle:'Test a Life Decision',
+    formSub:'Describe the decision and the options you are considering.',
+    q:'What decision are you trying to make?',
+    options:'Your options',
+    priority:'What matters most?',
+    horizon:'Time horizon',
+    back:'Back',
+    simulate:'Simulate Decision'
+  };
+
+  ['welcome','quiz','loading','result','chat','saved','decisionResult','decisionLoading'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.add('hidden');
+  });
+
+  const sec=document.getElementById('decision');
+  if(sec) sec.classList.remove('hidden');
+
+  if(document.getElementById('decisionFormTitle')) document.getElementById('decisionFormTitle').textContent=d.formTitle;
+  if(document.getElementById('decisionFormSub')) document.getElementById('decisionFormSub').textContent=d.formSub;
+  if(document.getElementById('decisionQLabel')) document.getElementById('decisionQLabel').textContent=d.q;
+  if(document.getElementById('optionsLabel')) document.getElementById('optionsLabel').textContent=d.options;
+  if(document.getElementById('priorityLabel')) document.getElementById('priorityLabel').textContent=d.priority;
+  if(document.getElementById('horizonLabel')) document.getElementById('horizonLabel').textContent=d.horizon;
+  if(document.getElementById('decisionBackBtn')) document.getElementById('decisionBackBtn').textContent=d.back;
+  if(document.getElementById('simulateBtn')) document.getElementById('simulateBtn').textContent=d.simulate;
+}
+
+function closeDecision(){
+  const sec=document.getElementById('decision');
+  if(sec) sec.classList.add('hidden');
+  const welcome=document.getElementById('welcome');
+  if(welcome) welcome.classList.remove('hidden');
+}
+
+function togglePriority(el,v){
+  el.classList.toggle('sel');
+  if(el.classList.contains('sel')){
+    if(!selectedPriorities.includes(v)) selectedPriorities.push(v);
+  }else{
+    selectedPriorities=selectedPriorities.filter(x=>x!==v);
+  }
+}
+
+async function simulateDecision(){
+  const d=(typeof DEC_UI!=='undefined' && (DEC_UI[lang]||DEC_UI.en)) || {retry:'Retry'};
+  const decision=(document.getElementById('decisionText')?.value||'').trim();
+  const options=[
+    (document.getElementById('optA')?.value||'').trim(),
+    (document.getElementById('optB')?.value||'').trim(),
+    (document.getElementById('optC')?.value||'').trim()
+  ].filter(Boolean);
+
+  if(!decision || options.length<2){
+    alert(lang==='hi'
+      ? 'कृपया निर्णय और कम से कम दो विकल्प लिखें।'
+      : (lang==='hinglish'
+          ? 'Please decision aur kam se kam 2 options likhiye.'
+          : 'Please enter the decision and at least two options.'));
+    return;
+  }
+
+  const horizon=document.getElementById('decisionHorizon')?.value||'5 years';
+  lastDecisionPayload={decision,options,priorities:[...selectedPriorities],horizon};
+
+  const form=document.getElementById('decision');
+  if(form) form.classList.add('hidden');
+  const loading=document.getElementById('decisionLoading');
+  if(loading) loading.classList.remove('hidden');
+
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),45000);
+
+  try{
+    const r=await fetch('/api/decision',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        profile:profile,
+        decision:decision,
+        options:options,
+        priorities:selectedPriorities,
+        horizon:horizon,
+        language_name:(LANG_META[lang]||LANG_META.en).name
+      }),
+      signal:controller.signal
+    });
+
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'Decision simulation failed');
+
+    decisionResultData=data;
+    saveDecisionReport();
+    renderDecision();
+
+    if(loading) loading.classList.add('hidden');
+    const resultSec=document.getElementById('decisionResult');
+    if(resultSec) resultSec.classList.remove('hidden');
+
+  }catch(e){
+    if(loading) loading.classList.add('hidden');
+    const resultSec=document.getElementById('decisionResult');
+    if(resultSec) resultSec.classList.remove('hidden');
+
+    const msg=(e.name==='AbortError')
+      ? (lang==='hi'
+          ? 'AI को जवाब देने में अधिक समय लग गया। कृपया फिर कोशिश करें।'
+          : (lang==='hinglish'
+              ? 'AI ko response dene me zyada time lag gaya. Please phir try karein.'
+              : 'The AI took too long. Please retry.'))
+      : (e.message||'Decision simulation failed');
+
+    if(document.getElementById('decisionError')) document.getElementById('decisionError').innerHTML=`<div class="err">${esc(msg)}</div>`;
+    if(document.getElementById('decisionRetry')) document.getElementById('decisionRetry').innerHTML=`<button class="primary" onclick="retryDecision()">${esc(d.retry||'Retry')}</button>`;
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+function retryDecision(){
+  if(document.getElementById('decisionError')) document.getElementById('decisionError').innerHTML='';
+  if(document.getElementById('decisionRetry')) document.getElementById('decisionRetry').innerHTML='';
+  const rs=document.getElementById('decisionResult');
+  if(rs) rs.classList.add('hidden');
+  const form=document.getElementById('decision');
+  if(form) form.classList.remove('hidden');
+}
+
+function metric(name,val){
+  const v=Math.max(0,Math.min(100,Number(val)||0));
+  return `<div class="metric"><div>${esc(name)}<div class="scorebar"><i style="width:${v}%"></i></div></div><b>${v}</b></div>`;
+}
+
+function renderDecision(){
+  if(!decisionResultData) return;
+  const d=(typeof DEC_UI!=='undefined' && (DEC_UI[lang]||DEC_UI.en)) || {
+    result:'Your Decision Map',
+    verify:'Before deciding, verify these',
+    next7:'Your next 7 days',
+    best:'Best-fit option',
+    confidence:'Confidence',
+    uncertainty:'Biggest uncertainty'
+  };
+  const x=decisionResultData;
+
+  if(document.getElementById('decisionError')) document.getElementById('decisionError').innerHTML='';
+  if(document.getElementById('decisionRetry')) document.getElementById('decisionRetry').innerHTML='';
+  if(document.getElementById('decisionResultTitle')) document.getElementById('decisionResultTitle').textContent=d.result;
+  if(document.getElementById('verifyTitle')) document.getElementById('verifyTitle').textContent=d.verify;
+  if(document.getElementById('next7Title')) document.getElementById('next7Title').textContent=d.next7;
+
+  const best=document.getElementById('decisionBest');
+  if(best){
+    best.innerHTML=`<h3>${esc(d.best)}: ${esc(x.best_fit_option)}</h3>
+      <p><b>${esc(d.confidence)}:</b> ${esc(x.confidence)}</p>
+      <p>${esc(x.recommendation_summary)}</p>
+      <p><b>${esc(d.uncertainty)}:</b> ${esc(x.biggest_uncertainty)}</p>
+      <ul>${(x.why_best_fit||[]).map(a=>`<li>${esc(a)}</li>`).join('')}</ul>`;
+  }
+
+  const scores=document.getElementById('decisionScores');
+  if(scores){
+    scores.innerHTML=(x.option_analysis||[]).map(o=>`<div class="scorecard">
+      <h3>${esc(o.option)}</h3>
+      <p>${esc(o.summary)}</p>
+      ${metric('Overall',o.overall_score)}
+      ${metric('Money',o.money)}
+      ${metric('Stability',o.stability)}
+      ${metric('Growth',o.growth)}
+      ${metric('Family/Lifestyle',o.family_lifestyle)}
+      ${metric('Time',o.time_flexibility)}
+      ${metric('Reversibility',o.reversibility)}
+      <h4>1 year</h4><p>${esc(o.year_1)}</p>
+      <h4>3 years</h4><p>${esc(o.year_3)}</p>
+      <h4>5 years</h4><p>${esc(o.year_5)}</p>
+      <h4>Risks</h4>
+      <ul>${(o.top_risks||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
+    </div>`).join('');
+  }
+
+  const verify=document.getElementById('decisionVerify');
+  if(verify) verify.innerHTML=(x.what_to_verify||[]).map(v=>`<div class="action">${esc(v)}</div>`).join('');
+
+  const next7=document.getElementById('decisionNext7');
+  if(next7) next7.innerHTML=(x.next_7_days||[]).map((v,i)=>`<div class="action"><b>${i+1}.</b> ${esc(v)}</div>`).join('');
+}
+
+function closeDecisionResult(){
+  const rs=document.getElementById('decisionResult');
+  if(rs) rs.classList.add('hidden');
+  const welcome=document.getElementById('welcome');
+  if(welcome) welcome.classList.remove('hidden');
+}
+
+function copyDecisionSummary(){
+  if(!decisionResultData) return;
+  const x=decisionResultData;
+  const txt=`NEXTME Decision Simulator
+Decision: ${lastDecisionPayload?.decision||''}
+Best-fit: ${x.best_fit_option}
+Confidence: ${x.confidence}
+
+${x.recommendation_summary}
+
+Before deciding:
+${(x.what_to_verify||[]).map(v=>'• '+v).join('\n')}`;
+
+  navigator.clipboard.writeText(txt)
+    .then(()=>alert(lang==='hi'?'Decision summary copy हो गया।':(lang==='hinglish'?'Decision summary copy ho gaya.':'Decision summary copied.')))
+    .catch(()=>alert(txt));
+}
+
+function getDecisionReports(){
+  try{
+    return JSON.parse(localStorage.getItem('nextme_saved_decisions')||'[]');
+  }catch(e){
+    return [];
+  }
+}
+
+function saveDecisionReport(){
+  if(!decisionResultData) return;
+  const arr=getDecisionReports();
+  arr.unshift({
+    id:Date.now(),
+    created:new Date().toISOString(),
+    language:lang,
+    payload:lastDecisionPayload,
+    result:decisionResultData
+  });
+  localStorage.setItem('nextme_saved_decisions',JSON.stringify(arr.slice(0,20)));
+}
+
+function restart(){idx=0;profile={};result=null;history=[];hide('result');hide('chat');hide('saved');hide('welcome');document.documentElement.dir='ltr';show('lang');}
+function show(x){document.getElementById(x).classList.remove('hidden')}function hide(x){document.getElementById(x).classList.add('hidden')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+let authMode='login';
+let currentUser=null;
+
+
+function requireLogin(){
+  if(currentUser) return true;
+  const gate=document.getElementById('authGate');
+  if(gate) gate.classList.remove('hidden');
+  openAuth();
+  return false;
+}
+
+function openAuth(){
+  if(currentUser){
+    if(confirm(`Logged in as ${currentUser.name} (${currentUser.email}).\n\nOK dabakar logout karein.`)){
+      doLogout();
+    }
+    return;
+  }
+  authMode='login';
+  paintAuth();
+  document.getElementById('authModal').classList.remove('hidden');
+}
+
+function closeAuth(){
+  document.getElementById('authModal').classList.add('hidden');
+  document.getElementById('authError').classList.add('hidden');
+}
+
+function switchAuthMode(){
+  authMode=authMode==='login'?'register':'login';
+  paintAuth();
+}
+
+function paintAuth(){
+  const reg=authMode==='register';
+  document.getElementById('authTitle').textContent=reg?'Create Account':'Login';
+  document.getElementById('authSub').textContent=reg?'Create your NEXTME account.':'Sign in to your NEXTME account.';
+  document.getElementById('nameRow').classList.toggle('hidden',!reg);
+  document.getElementById('confirmPasswordRow').classList.toggle('hidden',!reg);
+  document.getElementById('forgotWrap').classList.toggle('hidden',reg);
+  document.getElementById('authSubmit').textContent=reg?'Create Account':'Login';
+  document.getElementById('authSwitch').textContent=reg?'Already have an account? Login':'Create account';
+  document.getElementById('authError').classList.add('hidden');
+}
+
+
+
+async function serverSaveItem(itemType,title,payload){
+  if(!currentUser) return null;
+  try{
+    const r=await fetch('/api/history',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        item_type:itemType,
+        title:title||'',
+        payload:payload
+      })
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Save failed');
+    return d.id||null;
+  }catch(e){
+    console.warn('Server history save failed:',e);
+    return null;
+  }
+}
+
+async function fetchServerHistory(){
+  if(!currentUser) return [];
+  try{
+    const r=await fetch('/api/history');
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'History load failed');
+    return Array.isArray(d.items)?d.items:[];
+  }catch(e){
+    console.warn('Server history load failed:',e);
+    return [];
+  }
+}
+
+async function deleteServerHistory(id){
+  if(!currentUser || !id) return;
+  try{
+    await fetch('/api/history/'+id,{method:'DELETE'});
+  }catch(e){
+    console.warn('Server history delete failed:',e);
+  }
+}
+
+async function syncLocalHistoryToAccount(){
+  if(!currentUser) return;
+  const key='nextme_synced_user_'+currentUser.id;
+  if(localStorage.getItem(key)==='1') return;
+
+  const futures=getSavedReports();
+  for(const r of futures){
+    if(!r.server_id){
+      const title=r.result?.path_b?.title || r.result?.path_a?.title || 'NEXTME Future';
+      const sid=await serverSaveItem('future',title,r);
+      if(sid) r.server_id=sid;
+    }
+  }
+  localStorage.setItem('nextme_saved_reports',JSON.stringify(futures));
+
+  const decisions=getDecisionReports();
+  for(const r of decisions){
+    if(!r.server_id){
+      const title=r.payload?.decision || r.result?.decision_title || 'Decision';
+      const sid=await serverSaveItem('decision',title,r);
+      if(sid) r.server_id=sid;
+    }
+  }
+  localStorage.setItem('nextme_saved_decisions',JSON.stringify(decisions));
+
+  localStorage.setItem(key,'1');
+}
+
+
+
+function openForgotPassword(){
+  closeAuth();
+  document.getElementById('resetModal').classList.remove('hidden');
+  document.getElementById('resetCodeBlock').classList.add('hidden');
+  document.getElementById('resetDevCode').classList.add('hidden');
+  document.getElementById('resetError').classList.add('hidden');
+  document.getElementById('resetSubmitBtn').textContent='Get Reset Code';
+  document.getElementById('resetSubmitBtn').setAttribute('onclick','requestResetCode()');
+}
+
+function closeReset(){
+  document.getElementById('resetModal').classList.add('hidden');
+}
+
+async function requestResetCode(){
+  const email=document.getElementById('resetEmail').value.trim();
+  const err=document.getElementById('resetError');
+  const dev=document.getElementById('resetDevCode');
+
+  err.classList.add('hidden');
+  dev.classList.add('hidden');
+
+  try{
+    const r=await fetch('/api/forgot-password',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email})
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Reset request failed');
+
+    document.getElementById('resetCodeBlock').classList.remove('hidden');
+    if(d.dev_code){
+      dev.textContent=`Local testing reset code: ${d.dev_code}`;
+      dev.classList.remove('hidden');
+    }
+    document.getElementById('resetSubmitBtn').textContent='Reset Password';
+    document.getElementById('resetSubmitBtn').setAttribute('onclick','submitPasswordReset()');
+  }catch(e){
+    err.textContent=e.message||'Reset request failed';
+    err.classList.remove('hidden');
+  }
+}
+
+async function submitPasswordReset(){
+  const email=document.getElementById('resetEmail').value.trim();
+  const code=document.getElementById('resetCode').value.trim();
+  const password=document.getElementById('resetPassword').value;
+  const confirmPassword=document.getElementById('resetConfirmPassword').value;
+  const err=document.getElementById('resetError');
+
+  err.classList.add('hidden');
+
+  if(password!==confirmPassword){
+    err.textContent='New Password aur Confirm New Password match nahi kar rahe hain.';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  try{
+    const r=await fetch('/api/reset-password',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,code,password})
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Password reset failed');
+
+    alert('Password reset successful. Ab new password se login kijiye.');
+    closeReset();
+    openAuth();
+    document.getElementById('authEmail').value=email;
+  }catch(e){
+    err.textContent=e.message||'Password reset failed';
+    err.classList.remove('hidden');
+  }
+}
+
+function togglePassword(inputId,btn){
+  const input=document.getElementById(inputId);
+  if(!input) return;
+  const showing=input.type==='text';
+  input.type=showing?'password':'text';
+  btn.textContent=showing?'👁':'🙈';
+  btn.setAttribute('aria-label',showing?'Show password':'Hide password');
+}
+
+async function submitAuth(){
+  const err=document.getElementById('authError');
+  err.classList.add('hidden');
+
+  const payload={
+    email:document.getElementById('authEmail').value.trim(),
+    password:document.getElementById('authPassword').value
+  };
+  if(authMode==='register'){
+    payload.name=document.getElementById('authName').value.trim();
+    const confirmPassword=document.getElementById('authConfirmPassword').value;
+    if(payload.password!==confirmPassword){
+      err.textContent='Password aur Confirm Password match nahi kar rahe hain.';
+      err.classList.remove('hidden');
+      return;
+    }
+  }
+
+  try{
+    const r=await fetch(authMode==='register'?'/api/register':'/api/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Authentication failed');
+    currentUser=d.user;
+    updateAccountButton();
+    await syncLocalHistoryToAccount();
+    closeAuth();
+  }catch(e){
+    err.textContent=e.message||'Authentication failed';
+    err.classList.remove('hidden');
+  }
+}
+
+async function doLogout(){
+  await fetch('/api/logout',{method:'POST'});
+  currentUser=null;
+  updateAccountButton();
+}
+
+async function checkSession(){
+  try{
+    const r=await fetch('/api/me');
+    const d=await r.json();
+    currentUser=d.logged_in?d.user:null;
+    if(currentUser) await syncLocalHistoryToAccount();
+  }catch(e){
+    currentUser=null;
+  }
+  updateAccountButton();
+}
+
+function updateAccountButton(){
+  const b=document.getElementById('accountBtn');
+  const gate=document.getElementById('authGate');
+
+  if(currentUser){
+    if(b) b.textContent=`Hi, ${currentUser.name}`;
+    if(gate) gate.classList.add('hidden');
+  }else{
+    if(b) b.textContent='Login / Sign Up';
+    if(gate) gate.classList.remove('hidden');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',checkSession);
+
+</script>
+
+<div id="authModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="modal-x" onclick="closeAuth()">×</button>
+    <span class="pill">YOUR NEXTME ACCOUNT</span>
+    <h2 id="authTitle">Login</h2>
+    <p id="authSub" class="muted">Sign in to your NEXTME account.</p>
+
+    <div id="nameRow" class="hidden">
+      <label>Name</label>
+      <input id="authName" placeholder="Your name">
+    </div>
+
+    <label>Email</label>
+    <input id="authEmail" type="email" placeholder="you@example.com">
+
+    <label>Password</label>
+    <div class="password-wrap">
+      <input id="authPassword" type="password" placeholder="Minimum 6 characters">
+      <button type="button" class="eye-btn" onclick="togglePassword('authPassword',this)" aria-label="Show password">👁</button>
+    </div>
+
+    <div id="confirmPasswordRow" class="hidden">
+      <label>Confirm Password</label>
+      <div class="password-wrap">
+        <input id="authConfirmPassword" type="password" placeholder="Enter password again">
+        <button type="button" class="eye-btn" onclick="togglePassword('authConfirmPassword',this)" aria-label="Show confirm password">👁</button>
+      </div>
+    </div>
+
+    <div id="authError" class="err hidden" style="margin-top:10px"></div>
+    <button id="authSubmit" class="primary" onclick="submitAuth()" style="width:100%;margin-top:14px">Login</button>
+
+    <div style="text-align:center;margin-top:14px">
+      <button id="authSwitch" class="linkbtn" onclick="switchAuthMode()">Create account</button>
+    </div>
+    <div id="forgotWrap" style="text-align:center;margin-top:10px">
+      <button id="forgotPasswordBtn" class="linkbtn" onclick="openForgotPassword()">Forgot Password?</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="resetModal" class="modal hidden">
+  <div class="modal-card">
+    <button class="modal-x" onclick="closeReset()">×</button>
+    <span class="pill">PASSWORD RECOVERY</span>
+    <h2 id="resetTitle">Forgot Password</h2>
+    <p id="resetSub" class="muted">Apna registered email daliye.</p>
+
+    <label>Email</label>
+    <input id="resetEmail" type="email" placeholder="you@example.com">
+
+    <div id="resetCodeBlock" class="hidden">
+      <label>Verification Code</label>
+      <input id="resetCode" inputmode="numeric" maxlength="6" placeholder="6-digit code">
+
+      <label>New Password</label>
+      <div class="password-wrap">
+        <input id="resetPassword" type="password" placeholder="Minimum 6 characters">
+        <button type="button" class="eye-btn" onclick="togglePassword('resetPassword',this)">👁</button>
+      </div>
+
+      <label>Confirm New Password</label>
+      <div class="password-wrap">
+        <input id="resetConfirmPassword" type="password" placeholder="Enter password again">
+        <button type="button" class="eye-btn" onclick="togglePassword('resetConfirmPassword',this)">👁</button>
+      </div>
+    </div>
+
+    <div id="resetDevCode" class="action hidden" style="margin-top:12px"></div>
+    <div id="resetError" class="err hidden" style="margin-top:12px"></div>
+
+    <button id="resetSubmitBtn" class="primary" onclick="requestResetCode()" style="width:100%;margin-top:16px">
+      Get Reset Code
+    </button>
+  </div>
+</div>
+
+</body></html>
